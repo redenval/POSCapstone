@@ -6,10 +6,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Capstone.Data;
 using Microsoft.EntityFrameworkCore;
+using Capstone.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Capstone.Repository.IRepository;
+using Capstone.Services;
+using Capstone.Services.IServices;
 
 namespace Capstone
 {
@@ -28,6 +32,18 @@ namespace Capstone
             services.AddControllersWithViews();
 
             services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddScoped<IAdminRepository, AdminRepository>();
+            services.AddScoped<ISessionService, SessionService>();
+
+            services.AddControllersWithViews().AddRazorRuntimeCompilation();
+
+            services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(30);
+                options.Cookie.HttpOnly = true;
+            });
+
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -49,7 +65,7 @@ namespace Capstone
             app.UseRouting();
 
             app.UseAuthorization();
-
+            app.UseSession();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(

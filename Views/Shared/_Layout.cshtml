@@ -1,4 +1,11 @@
-﻿<!DOCTYPE html>
+﻿@inject Capstone.Services.IServices.ISessionService _sessionService
+@using Capstone.Utilities; 
+
+@{ 
+    var userAccess = _sessionService.GetItems(SessionKeys.UserAccess, ViewContext.HttpContext) ?? SessionKeys.UserAccessDefault;
+}
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -21,6 +28,18 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
+                        @if (userAccess.Equals(SessionKeys.UserAccessAdmin))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="Index">Dashboard</a>
+                            </li>
+                        }
+                    </ul>
+                    <ul>
+                        @if (userAccess.Equals(SessionKeys.UserAccessAdmin))
+                        {
+                            <a class="nav-link text-dark justify-content-end" asp-area="" asp-controller="Admin" asp-action="Logout">Logout</a>
+                        }
                     </ul>
                 </div>
             </div>

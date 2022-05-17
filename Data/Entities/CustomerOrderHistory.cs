@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 
 namespace Capstone.Data.Entities
 {
-    public class Item
+    public class CustomerOrderHistory
     {
         [Key]
         public int Id { get; set; }
-        public string Name { get; set; }
-        public int StockQuantity { get; set; }
+        public Guid OrderId { get; set; }
     }
 }
