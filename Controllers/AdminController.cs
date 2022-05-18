@@ -26,7 +26,8 @@ namespace Capstone.Controllers
             if (userAccess.Equals(SessionKeys.UserAccessDefault))
             {
                 return View("Login");
-            }else
+            }
+            else
             {
                 return View("Index");
             }
@@ -49,11 +50,53 @@ namespace Capstone.Controllers
         public IActionResult Logout()
         {
             var userAccess = _sessionService.GetItems(SessionKeys.UserAccess, HttpContext) ?? SessionKeys.UserAccessDefault;
-            if(userAccess.Equals(SessionKeys.UserAccessAdmin))
+            if (userAccess.Equals(SessionKeys.UserAccessAdmin))
             {
                 _sessionService.SetItems(SessionKeys.UserAccess, SessionKeys.UserAccessDefault, HttpContext);
             }
             return RedirectToAction("Index", "Home");
         }
+
+
+        #region Inventory
+        public IActionResult Inventory()
+        {
+            var userAccess = _sessionService.GetItems(SessionKeys.UserAccess, HttpContext) ?? SessionKeys.UserAccessDefault;
+            if (userAccess.Equals(SessionKeys.UserAccessAdmin))
+            {
+                ViewBag.Inventory = _adminRepository.GetInventoryItems();
+                return View("Inventory");
+            }
+            return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet]
+        [Route("/Admin/Inventory/Add")]
+        public IActionResult InventoryAdd()
+        {
+            var userAccess = _sessionService.GetItems(SessionKeys.UserAccess, HttpContext) ?? SessionKeys.UserAccessDefault;
+            if (userAccess.Equals(SessionKeys.UserAccessAdmin))
+            {
+                return View("InventoryAdd");
+            }
+
+            return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet]
+        [Route("/Admin/Inventory/Delete/{id}", Name = "InventoryDelete")]
+        public IActionResult InventoryDelete(int id)
+        {
+            var userAccess = _sessionService.GetItems(SessionKeys.UserAccess, HttpContext) ?? SessionKeys.UserAccessDefault;
+            if (userAccess.Equals(SessionKeys.UserAccessAdmin))
+            {
+                _adminRepository.DeleteInventoryItem(id);
+                ViewBag.Inventory = _adminRepository.GetInventoryItems();
+                return View("Inventory");
+            }
+
+            return RedirectToAction("Index", "Home");
+        }
+        #endregion
     }
 }
