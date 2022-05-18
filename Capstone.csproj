@@ -6,12 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="Views\Admin\InventoryAdd.cshtml" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="Views\Admin\Index.cshtml" />
-    <None Include="Views\Admin\InventoryAdd.cshtml" />
     <None Include="Views\Admin\Inventory.cshtml" />
     <None Include="Views\Admin\Login.cshtml" />
   </ItemGroup>

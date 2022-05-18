@@ -1,6 +1,9 @@
-﻿@{
+﻿@inject Capstone.Repository.IRepository.IAdminRepository _adminRepository
+@model Capstone.Models.ItemViewModel
+
+@{
     ViewData["Title"] = "Inventory";
-    List<InventoryViewModel> inventory = ViewBag.Inventory;
+    List<ItemViewModel> inventory = _adminRepository.GetInventoryItems();
 }
 
 <div>
@@ -9,12 +12,12 @@
             <h1>Inventory</h1>
         </div>
         <div>
-            <a asp-controller="Admin" asp-action="InventoryAdd" class="btn btn-primary">Add Item</a>
+            <button class="btn btn-primary" data-toggle="modal" data-target="#addItemModal">Add Item</button>
         </div>
     </div>
 
     <div class="table-responsive container">
-        <table class="table table-bordered">
+        <table class="table table-bordered inventoryTable">
             <tr class="row">
                 <th class="col-6">Item Name</th>
                 <th class="col-3">Stock Quantity</th>
@@ -28,9 +31,11 @@
                                 };
 
                 <tr class="row">
-                    <td class="col-6">@item.Name</td>
-                    <td class="col-3">@item.StockQuantity</td>
+                    <input type="hidden" value="@item.Id" />
+                    <td class="col-6 itemName">@item.Name</td>
+                    <td class="col-3 itemQuantity">@item.StockQuantity</td>
                     <td class="col-3">
+                        <a href="#" class="inventoryItemEdit">Edit</a>
                         <a asp-action="InventoryDelete" asp-controller="Admin" asp-all-route-data="EditData">Delete</a>
                     </td>
                 </tr>
@@ -38,4 +43,98 @@
 
         </table>
     </div>
+
+    <div class="modal fade" id="addItemModal" tabindex="-1" role="dialog" aria-labelledby="addItemModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                @using (Html.BeginForm("InventoryAdd", "Admin", FormMethod.Get))
+                {
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addItemModalLabel">Add Inventory Item</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="form-outline mb-4">
+                            @Html.TextAreaFor(m => m.Name, new { id = "itemName", type = "text", @class= "form-control" })
+                            @Html.LabelFor(m => m.Name, new { @class="form-label"})
+        `                   @*<input type="text" asp-for="@Model.Name" id="itemName" name="name" class="form-control" />*@
+                            @*<label class="form-label" for="itemName">Name</label>*@
+                        </div>
+
+                        <div class="form-outline mb-4">
+                            @Html.TextAreaFor(m => m.StockQuantity, new { id = "itemQuantity", type = "number", @class = "form-control" })
+                            @Html.LabelFor(m => m.StockQuantity, new { @class = "form-label" })
+                            @*<input type="number" asp-for="@Model.StockQuantity" id="itemQuantity" name="quantity" class="form-control" />
+                            <label class="form-label" for="itemQuantity">Quantity</label>*@
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editItemModal" tabindex="-1" role="dialog" aria-labelledby="editItemModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                @using (Html.BeginForm("InventoryEdit", "Admin", FormMethod.Get))
+                {
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editItemModalLabel">Edit Inventory Item</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+
+                        @Html.HiddenFor(m => m.Id, new { id = "itemId" })
+                        @*<input type="hidden" id="itemId" name="id" value="" />*@
+
+                        <div class="form-outline mb-4">
+                            @Html.TextAreaFor(m => m.Name, new { id = "itemName", type = "text", @class = "form-control" })
+                            @Html.LabelFor(m => m.Name, new { @class = "form-label" })
+                            `                   @*<input type="text" asp-for="@Model.Name" id="itemName" name="name" class="form-control" />*@
+                            @*<label class="form-label" for="itemName">Name</label>*@
+                        </div>
+
+                        <div class="form-outline mb-4">
+                            @Html.TextAreaFor(m => m.StockQuantity, new { id = "itemQuantity", type = "number", @class = "form-control" })
+                            @Html.LabelFor(m => m.StockQuantity, new { @class = "form-label" })
+                            @*<input type="number" asp-for="@Model.StockQuantity" id="itemQuantity" name="quantity" class="form-control" />
+                            <label class="form-label" for="itemQuantity">Quantity</label>*@
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
 </div>
+
+@section Scripts{
+    <script>
+        $(function () {
+            $('.inventoryTable .inventoryItemEdit').on('click', function (evt) {
+                var itemId = $(this).parent().parent().children('input').val();
+                var itemName = $(this).parent().parent().children('.itemName').html();
+                var itemQuantity = $(this).parent().parent().children('.itemQuantity').html();
+                $('#editItemModal #itemId').val(itemId);
+                $('#editItemModal #itemName').val(itemName);
+                $('#editItemModal #itemQuantity').val(itemQuantity);
+                $('#editItemModal').modal('show');
+            });
+
+        });
+    </script>
+}
+

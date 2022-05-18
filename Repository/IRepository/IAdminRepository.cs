@@ -9,7 +9,10 @@ namespace Capstone.Repository.IRepository
     public interface IAdminRepository
     {
         bool CheckAdminCredentials(string user, string pass);
+        void AddInventoryItem(ItemViewModel itemViewModel);
+        void EditInventoryItem(ItemViewModel itemViewModel);
         void DeleteInventoryItem(int id);
-        List<InventoryViewModel> GetInventoryItems();
+        List<ItemViewModel> GetInventoryItems();
+        List<AccountViewModel> GetAccounts();
     }
 }

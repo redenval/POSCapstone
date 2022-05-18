@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Capstone.Utilities;
 using Capstone.Services.IServices;
+using Capstone.Models;
 
 namespace Capstone.Controllers
 {
@@ -57,6 +58,18 @@ namespace Capstone.Controllers
             return RedirectToAction("Index", "Home");
         }
 
+        #region Account
+        public IActionResult Account()
+        {
+            var userAccess = _sessionService.GetItems(SessionKeys.UserAccess, HttpContext) ?? SessionKeys.UserAccessDefault;
+            if (userAccess.Equals(SessionKeys.UserAccessAdmin))
+            {
+                return View("Account");
+            }
+            return RedirectToAction("Index", "Home");
+        }
+        #endregion
+
 
         #region Inventory
         public IActionResult Inventory()
@@ -64,7 +77,6 @@ namespace Capstone.Controllers
             var userAccess = _sessionService.GetItems(SessionKeys.UserAccess, HttpContext) ?? SessionKeys.UserAccessDefault;
             if (userAccess.Equals(SessionKeys.UserAccessAdmin))
             {
-                ViewBag.Inventory = _adminRepository.GetInventoryItems();
                 return View("Inventory");
             }
             return RedirectToAction("Index", "Home");
@@ -72,12 +84,27 @@ namespace Capstone.Controllers
 
         [HttpGet]
         [Route("/Admin/Inventory/Add")]
-        public IActionResult InventoryAdd()
+        public IActionResult InventoryAdd(ItemViewModel model)
         {
             var userAccess = _sessionService.GetItems(SessionKeys.UserAccess, HttpContext) ?? SessionKeys.UserAccessDefault;
             if (userAccess.Equals(SessionKeys.UserAccessAdmin))
             {
-                return View("InventoryAdd");
+                _adminRepository.AddInventoryItem(model);
+                return View("Inventory");
+            }
+
+            return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet]
+        [Route("/Admin/Inventory/Edit")]
+        public IActionResult InventoryEdit(ItemViewModel itemViewModel)
+        {
+            var userAccess = _sessionService.GetItems(SessionKeys.UserAccess, HttpContext) ?? SessionKeys.UserAccessDefault;
+            if (userAccess.Equals(SessionKeys.UserAccessAdmin))
+            {
+                _adminRepository.EditInventoryItem(itemViewModel);
+                return View("Inventory");
             }
 
             return RedirectToAction("Index", "Home");
@@ -91,7 +118,6 @@ namespace Capstone.Controllers
             if (userAccess.Equals(SessionKeys.UserAccessAdmin))
             {
                 _adminRepository.DeleteInventoryItem(id);
-                ViewBag.Inventory = _adminRepository.GetInventoryItems();
                 return View("Inventory");
             }
 
