@@ -17,6 +17,18 @@ namespace Capstone.Repository
             _dbContext = dbContext;
         }
 
+        public void AddAccount(AccountViewModel accountViewModel)
+        {
+
+            var count = _dbContext.Accounts.Where(x => x.FirstName.Equals(accountViewModel.FirstName) && x.LastName.Equals(accountViewModel.LastName)).Count();
+            if (count > 0)
+                return;
+
+            _dbContext.Accounts.Add(new Account() { AccountLevel = accountViewModel.AccountLevel, FirstName = accountViewModel.FirstName, 
+            LastName = accountViewModel.LastName, Email = accountViewModel.Email, Password = accountViewModel.Password, PhoneNumber = accountViewModel.PhoneNumber});
+            _dbContext.SaveChanges();
+        }
+
         public void AddInventoryItem(ItemViewModel itemViewModel)
         {
             var count = _dbContext.Items.Where(x => x.Name.Equals(itemViewModel.Name)).Count();
@@ -32,6 +44,18 @@ namespace Capstone.Repository
             return _dbContext.Accounts.Where(x => x.Email.Equals(user) && x.Password.Equals(pass)).Count() > 0 ? true : false ;
         }
 
+        public void DeleteAccount(int id)
+        {
+            var account = _dbContext.Accounts.Where(x => x.Id == id).ToList();
+            if (account.Count() <= 0)
+            {
+                return;
+            }
+
+            _dbContext.Accounts.Remove(account.First());
+            _dbContext.SaveChanges();
+        }
+
         public void DeleteInventoryItem(int id)
         {
             var item = _dbContext.Items.Where(x => x.Id == id).ToList();
@@ -41,6 +65,26 @@ namespace Capstone.Repository
             }
 
             _dbContext.Items.Remove(item.First());
+            _dbContext.SaveChanges();
+        }
+
+        public void EditAccount(AccountViewModel accountViewModel)
+        {
+            var count = _dbContext.Accounts.Where(x => x.Id == accountViewModel.Id).Count();
+            if (count <= 0)
+            {
+                return;
+            }
+
+            Account account = _dbContext.Accounts.Where(x => x.Id == accountViewModel.Id).FirstOrDefault();
+            account.FirstName = accountViewModel.FirstName;
+            account.LastName = accountViewModel.LastName;
+            account.Email = accountViewModel.Email;
+            account.Password = accountViewModel.Password;
+            account.PhoneNumber = accountViewModel.PhoneNumber;
+            account.AccountLevel = accountViewModel.AccountLevel;
+
+            _dbContext.Accounts.Update(account);
             _dbContext.SaveChanges();
         }
 

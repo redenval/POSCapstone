@@ -68,6 +68,48 @@ namespace Capstone.Controllers
             }
             return RedirectToAction("Index", "Home");
         }
+
+        [HttpGet]
+        [Route("/Admin/Account/Add")]
+        public IActionResult AccountAdd(AccountViewModel model)
+        {
+            var userAccess = _sessionService.GetItems(SessionKeys.UserAccess, HttpContext) ?? SessionKeys.UserAccessDefault;
+            if (userAccess.Equals(SessionKeys.UserAccessAdmin))
+            {
+                _adminRepository.AddAccount(model);
+                return View("Account");
+            }
+
+            return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet]
+        [Route("/Admin/Account/Edit")]
+        public IActionResult AccountEdit(AccountViewModel model)
+        {
+            var userAccess = _sessionService.GetItems(SessionKeys.UserAccess, HttpContext) ?? SessionKeys.UserAccessDefault;
+            if (userAccess.Equals(SessionKeys.UserAccessAdmin))
+            {
+                _adminRepository.EditAccount(model);
+                return View("Account");
+            }
+
+            return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet]
+        [Route("/Admin/Account/Delete/{id}", Name = "AccountDelete")]
+        public IActionResult AccountDelete(int id)
+        {
+            var userAccess = _sessionService.GetItems(SessionKeys.UserAccess, HttpContext) ?? SessionKeys.UserAccessDefault;
+            if (userAccess.Equals(SessionKeys.UserAccessAdmin))
+            {
+                _adminRepository.DeleteAccount(id);
+                return View("Account");
+            }
+
+            return RedirectToAction("Index", "Home");
+        }
         #endregion
 
 
@@ -98,12 +140,12 @@ namespace Capstone.Controllers
 
         [HttpGet]
         [Route("/Admin/Inventory/Edit")]
-        public IActionResult InventoryEdit(ItemViewModel itemViewModel)
+        public IActionResult InventoryEdit(ItemViewModel model)
         {
             var userAccess = _sessionService.GetItems(SessionKeys.UserAccess, HttpContext) ?? SessionKeys.UserAccessDefault;
             if (userAccess.Equals(SessionKeys.UserAccessAdmin))
             {
-                _adminRepository.EditInventoryItem(itemViewModel);
+                _adminRepository.EditInventoryItem(model);
                 return View("Inventory");
             }
 
