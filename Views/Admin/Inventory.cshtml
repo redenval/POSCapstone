@@ -26,9 +26,9 @@
             @foreach (var item in inventory)
             {
                 var EditData = new Dictionary<string, string>
-                                {
-                                    { "id", item.Id.ToString()}
-                                };
+                {
+                    { "id", item.Id.ToString()}
+                };
 
                 <tr class="row">
                     <input type="hidden" value="@item.Id" />
@@ -58,14 +58,14 @@
                     <div class="modal-body">
 
                         <div class="form-outline mb-4">
-                            @Html.TextAreaFor(m => m.Name, new { id = "itemName", type = "text", @class= "form-control" })
+                            @Html.TextBoxFor(m => m.Name, new { id = "itemName", type = "text", @class= "form-control" })
                             @Html.LabelFor(m => m.Name, new { @class="form-label"})
         `                   @*<input type="text" asp-for="@Model.Name" id="itemName" name="name" class="form-control" />*@
                             @*<label class="form-label" for="itemName">Name</label>*@
                         </div>
 
                         <div class="form-outline mb-4">
-                            @Html.TextAreaFor(m => m.StockQuantity, new { id = "itemQuantity", type = "number", @class = "form-control" })
+                            @Html.TextBoxFor(m => m.StockQuantity, new { id = "itemQuantity", type = "number", @class = "form-control" })
                             @Html.LabelFor(m => m.StockQuantity, new { @class = "form-label" })
                             @*<input type="number" asp-for="@Model.StockQuantity" id="itemQuantity" name="quantity" class="form-control" />
                             <label class="form-label" for="itemQuantity">Quantity</label>*@
