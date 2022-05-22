@@ -1,5 +1,6 @@
 ﻿@inject Capstone.Repository.IRepository.IAdminRepository _adminRepository
 @model Capstone.Models.AccountViewModel
+
 @{
     var accounts = _adminRepository.GetAccounts();
 }
