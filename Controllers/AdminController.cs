@@ -15,6 +15,7 @@ namespace Capstone.Controllers
     {
         private readonly IAdminRepository _adminRepository;
         private readonly ISessionService _sessionService;
+
         public AdminController(IAdminRepository adminRepository, ISessionService sessionService)
         {
             _adminRepository = adminRepository;
@@ -24,6 +25,7 @@ namespace Capstone.Controllers
         public IActionResult Index()
         {
             var userAccess = _sessionService.GetItems(SessionKeys.UserAccess, HttpContext) ?? SessionKeys.UserAccessDefault;
+
             if (userAccess.Equals(SessionKeys.UserAccessDefault))
             {
                 return View("Login");
@@ -36,6 +38,11 @@ namespace Capstone.Controllers
 
         public IActionResult Login(string email, string pass)
         {
+            var userAccess = _sessionService.GetItems(SessionKeys.UserAccess, HttpContext) ?? SessionKeys.UserAccessDefault;
+
+            if (userAccess.Equals(SessionKeys.UserAccessAdmin))
+                return View("Index");
+
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(pass))
                 return View("Login");
 
@@ -57,6 +64,23 @@ namespace Capstone.Controllers
             }
             return RedirectToAction("Index", "Home");
         }
+
+        #region Product
+        public IActionResult Product()
+        {
+            var userAccess = _sessionService.GetItems(SessionKeys.UserAccess, HttpContext) ?? SessionKeys.UserAccessDefault;
+
+            if(userAccess.Equals(SessionKeys.UserAccessAdmin))
+            {
+                return View("Product");
+            }
+            else
+            {
+                return View("Login");
+            }
+        }
+        #endregion
+
 
         #region Account
         public IActionResult Account()
