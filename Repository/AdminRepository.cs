@@ -81,8 +81,17 @@ namespace Capstone.Repository
                 return;
             }
 
-            _dbContext.Items.Remove(item.First());
-            _dbContext.SaveChanges();
+            bool isPresent = _dbContext.ProductItems.Where(x => x.Item == item.First()).ToList().Count() > 0;
+
+            if(isPresent)
+            {
+                return;
+            }
+            else
+            {
+                _dbContext.Items.Remove(item.First());
+                _dbContext.SaveChanges();
+            }
         }
 
         public void DeleteProduct(int id)
