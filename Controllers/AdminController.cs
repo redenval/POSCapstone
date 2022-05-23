@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Capstone.Utilities;
 using Capstone.Services.IServices;
 using Capstone.Models;
+using Capstone.Data.Entities;
 
 namespace Capstone.Controllers
 {
@@ -72,12 +73,46 @@ namespace Capstone.Controllers
 
             if(userAccess.Equals(SessionKeys.UserAccessAdmin))
             {
-                return View("Product");
+                ViewBag.SearchItems = _adminRepository.GetSearchItems();
+                IEnumerable<ProductViewModel> productViewModels = _adminRepository.GetProductViewModels();
+                return View("Product", productViewModels);
             }
             else
             {
                 return View("Login");
             }
+        }
+
+        [HttpPost]
+        [Route("/Admin/Product/Add")]
+        public IActionResult ProductAdd(ProductViewModel model)
+        {
+            var userAccess = _sessionService.GetItems(SessionKeys.UserAccess, HttpContext) ?? SessionKeys.UserAccessDefault;
+            if (userAccess.Equals(SessionKeys.UserAccessAdmin))
+            {
+                _adminRepository.AddProduct(model);
+                ViewBag.SearchItems = _adminRepository.GetSearchItems();
+                IEnumerable<ProductViewModel> productViewModels = _adminRepository.GetProductViewModels();
+                return View("Product", productViewModels);
+            }
+
+            return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet]
+        [Route("/Admin/Product/Delete/{id}", Name = "ProductDelete")]
+        public IActionResult ProductDelete(int id)
+        {
+            var userAccess = _sessionService.GetItems(SessionKeys.UserAccess, HttpContext) ?? SessionKeys.UserAccessDefault;
+            if (userAccess.Equals(SessionKeys.UserAccessAdmin))
+            {
+                _adminRepository.DeleteProduct(id);
+                ViewBag.SearchItems = _adminRepository.GetSearchItems();
+                IEnumerable<ProductViewModel> productViewModels = _adminRepository.GetProductViewModels();
+                return View("Product", productViewModels);
+            }
+
+            return RedirectToAction("Index", "Home");
         }
         #endregion
 

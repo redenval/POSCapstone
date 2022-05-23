@@ -15,7 +15,11 @@ namespace Capstone.Repository.IRepository
         void AddAccount(AccountViewModel accountViewModel);
         void EditAccount(AccountViewModel accountViewModel);
         void DeleteAccount(int id);
+        void AddProduct(ProductViewModel productViewModel);
+        void DeleteProduct(int id);
         List<ItemViewModel> GetInventoryItems();
         List<AccountViewModel> GetAccounts();
+        IEnumerable<SearchItemViewModel> GetSearchItems();
+        IEnumerable<ProductViewModel> GetProductViewModels();
     }
 }

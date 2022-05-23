@@ -39,6 +39,23 @@ namespace Capstone.Repository
             _dbContext.SaveChanges();
         }
 
+        public void AddProduct(ProductViewModel productViewModel)
+        {
+            if (productViewModel == null) return;
+
+            Product product = new Product() { Name = productViewModel.Name, Price = productViewModel.Price};
+            List<ProductItem> pl = new List<ProductItem>();
+            foreach (var item in productViewModel.Items)
+            {
+                ProductItem p = new ProductItem() { Product = product, Quantity = item.Quantity, Item = _dbContext.Items.Where(x => x.Id == item.Item.Id).FirstOrDefault() };
+                pl.Add(p);
+            }
+
+            product.ProductItems = pl;
+            _dbContext.Products.Add(product);
+            _dbContext.SaveChanges();
+        }
+
         public bool CheckAdminCredentials(string user, string pass)
         {
             return _dbContext.Accounts.Where(x => x.Email.Equals(user) && x.Password.Equals(pass)).Count() > 0 ? true : false ;
@@ -65,6 +82,25 @@ namespace Capstone.Repository
             }
 
             _dbContext.Items.Remove(item.First());
+            _dbContext.SaveChanges();
+        }
+
+        public void DeleteProduct(int id)
+        {
+            var product = _dbContext.Products.Where(x => x.Id == id).ToList();
+            if(product.Count()<=0)
+            {
+                return;
+            }
+
+            var productItems = _dbContext.ProductItems.Where(x => x.Product.Id == product.FirstOrDefault().Id).ToList();
+            foreach(var item in productItems)
+            {
+                _dbContext.ProductItems.Remove(item);
+                _dbContext.SaveChanges();
+            }
+
+            _dbContext.Products.Remove(product.FirstOrDefault());
             _dbContext.SaveChanges();
         }
 
@@ -128,6 +164,18 @@ namespace Capstone.Repository
             }
 
             return inventory;
+        }
+
+        public IEnumerable<ProductViewModel> GetProductViewModels()
+        {
+            return _dbContext.Products.Select(x => new ProductViewModel() { Id = x.Id, Name = x.Name, Items = x.ProductItems, Price = x.Price }).AsEnumerable();
+        }
+
+        public IEnumerable<SearchItemViewModel> GetSearchItems()
+        {
+            IEnumerable<SearchItemViewModel> searchItems;
+            searchItems = _dbContext.Items.Select(x => new SearchItemViewModel() { Id = x.Id, ItemName = x.Name}).AsEnumerable();
+            return searchItems;
         }
     }
 }

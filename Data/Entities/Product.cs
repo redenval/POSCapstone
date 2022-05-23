@@ -11,7 +11,7 @@ namespace Capstone.Data.Entities
         [Key]
         public int Id { get; set; }
         public string Name { get; set; }
-        public ICollection<ProductItem> ProductItems { get; set; }
         public double Price { get; set; }
+        public ICollection<ProductItem> ProductItems { get; set; }
     }
 }
