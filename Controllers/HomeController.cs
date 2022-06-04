@@ -1,21 +1,27 @@
-﻿using Capstone.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Capstone.Services.IServices;
+using Capstone.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Capstone.Utilities;
+using Capstone.Repository.IRepository;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Capstone.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly ISessionService _sessionService;
+        private readonly IUserRepository _userRepository;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ISessionService sessionService, IUserRepository userRepository)
         {
-            _logger = logger;
+            _sessionService = sessionService;
+            _userRepository = userRepository;
         }
 
         public IActionResult Index()
@@ -28,10 +34,17 @@ namespace Capstone.Controllers
             return View();
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        public IActionResult Register()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+
+            ViewBag.BarangayList = StaticUtilities.GetBarangayList().Select((value, index) => new { value, index }).Select(x => new SelectListItem() { Value = x.index.ToString(), Text = x.value });
+            return View();
+        }
+        
+        public IActionResult RegisterUser(UserViewModel user)
+        {
+            _userRepository.Create(new UserViewModel() { Email = user.Email, Password = user.Password, Barangay = StaticUtilities.GetBarangayList()[int.Parse(user.Barangay)], StreetAddress = user.StreetAddress, Phone = user.Phone, Profile = user.Profile});
+            return RedirectToAction("Index");
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using Capstone.Data.Entities;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace Capstone.Data
 {
@@ -9,12 +8,13 @@ namespace Capstone.Data
         {
         }
 
-        public DbSet<Item> Items { get; set; }
-        public DbSet<Product> Products { get; set; }
-        public DbSet<ProductItem> ProductItems { get; set; }
-        public DbSet<Account> Accounts { get; set; }
-        public DbSet<Customer> Customers { get; set; }
-        public DbSet<Order> Orders { get; set; }
-        public DbSet<CustomerOrderHistory> CustomerOrderHistories { get; set; }
+        public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<Order> Orders { get; set; }
+        public virtual DbSet<Category> Categories { get; set; }
+        public virtual DbSet<Product> Products { get; set; }
+        public virtual DbSet<ProductOrder> ProductOrders { get; set; }
+        public virtual DbSet<ProductImage> ProductImages { get; set; }
+        public virtual DbSet<ProductThumbnail> ProductThumbnails { get; set; }
+        public virtual DbSet<ProductPromoThumbnail> ProductPromoThumbnails { get; set; }
     }
 }

@@ -6,14 +6,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Capstone.Data;
 using Microsoft.EntityFrameworkCore;
-using Capstone.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Capstone.Repository.IRepository;
 using Capstone.Services;
 using Capstone.Services.IServices;
+using Capstone.Repository;
+using Capstone.Repository.IRepository;
 
 namespace Capstone
 {
@@ -32,8 +32,12 @@ namespace Capstone
             services.AddControllersWithViews();
 
             services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-            services.AddScoped<IAdminRepository, AdminRepository>();
+            
+            //Services
             services.AddScoped<ISessionService, SessionService>();
+
+            //Repository
+            services.AddScoped<IUserRepository, UserRepository>();
 
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
 

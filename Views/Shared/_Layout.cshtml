@@ -1,8 +1,8 @@
 ﻿@inject Capstone.Services.IServices.ISessionService _sessionService
-@using Capstone.Utilities; 
+@using Capstone.Utilities;
 
-@{ 
-    var userAccess = _sessionService.GetItems(SessionKeys.UserAccess, ViewContext.HttpContext) ?? SessionKeys.UserAccessDefault;
+@{
+    var userAccessStatus = _sessionService.GetItems(SessionKeys.UserAccessStatus, ViewContext.HttpContext) ?? SessionKeys.UserAccessStatusLoggedOut;
 }
 
 <!DOCTYPE html>
@@ -13,9 +13,10 @@
     <title>@ViewData["Title"] - Capstone</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         .hidden {
-            display:none;
+            display: none;
         }
     </style>
 </head>
@@ -33,19 +34,32 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
-                        @if (userAccess.Equals(SessionKeys.UserAccessAdmin))
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="Index">Dashboard</a>
-                            </li>
-                        }
+                        <li class="nav-item">
+                            <div class="align-text-bottom p-2">
+                                <a href="#" style="color:black">
+                                    <i class="fa fa-shopping-cart"></i>
+                                </a>
+                            </div>
+                        </li>
                     </ul>
-                    <ul>
-                        @if (userAccess.Equals(SessionKeys.UserAccessAdmin))
-                        {
-                            <a class="nav-link text-dark justify-content-end" asp-area="" asp-controller="Admin" asp-action="Logout">Logout</a>
-                        }
-                          </ul>
+
+                    @if (userAccessStatus.Equals(SessionKeys.UserAccessStatusLoggedIn))
+                    {
+                        <ul class="navbar-nav flex-grow-1">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Logout</a>
+                        </ul>
+                    }
+                    else
+                    {
+                        <ul class="navbar-nav">
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Login">Login</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Register">Register</a>
+                            </li>
+                        </ul>
+                    }
                 </div>
             </div>
         </nav>
