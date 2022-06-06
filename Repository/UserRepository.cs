@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Capstone.Data;
-using Capstone.Models;
+using Capstone.ViewModels;
 using Capstone.Repository.IRepository;
 using Capstone.Utilities;
 
@@ -20,7 +18,7 @@ namespace Capstone.Repository
 
         public void Create(UserViewModel user)
         {
-            if(!IsExist(user))
+            if (IsExist(user) == null)
             {
                 _context.Users.Add(new User() { Email = user.Email, Password = user.Password, StreetAddress = user.StreetAddress, Barangay = user.Barangay, Phone = user.Phone, Profile = user.Profile, Role = SessionKeys.UserAccessRoleDefault });
                 _context.SaveChanges();
@@ -32,14 +30,60 @@ namespace Capstone.Repository
             throw new NotImplementedException();
         }
 
-        public bool IsExist(UserViewModel user)
+
+        public UserViewModel IsExist(UserViewModel user)
         {
-            return (_context.Users.Where(x => x.Email.Equals(user.Email)).ToList().Count() > 0 ? true : false);
+            var dbUser = _context.Users.FirstOrDefault(u => u.Email.ToLower().Equals(user.Email.ToLower()));
+            return (dbUser != null) ? new UserViewModel()
+            {
+                Id = dbUser.Id,
+                Email = dbUser.Email,
+                Password = dbUser.Password,
+                Phone = dbUser.Phone,
+                Barangay = dbUser.Barangay,
+                Profile = dbUser.Profile
+            ,
+                Role = dbUser.Role,
+                StreetAddress = dbUser.StreetAddress
+            } : null;
+        }
+        public bool IsEmailExist(string email)
+        {
+            var dbUser = _context.Users.FirstOrDefault(u => u.Email.ToLower().Equals(email.ToLower()));
+            return (dbUser != null) ? true : false;
+        }
+
+        public bool IsPhoneNumberExist(string phone)
+        {
+            var dbUser = _context.Users.FirstOrDefault(u => u.Phone.Equals(phone));
+            return (dbUser != null) ? true : false;
         }
 
         public void Update(int id, UserViewModel user)
         {
             throw new NotImplementedException();
+        }
+
+        public bool ValidateUserLogin(string email, string password)
+        {
+            var dbUser = _context.Users.FirstOrDefault(u => u.Email.ToLower().Equals(email.ToLower()) && u.Password.Equals(password));
+            return (dbUser != null) ? true : false;
+        }
+
+        public UserViewModel GetUser(string email, string password)
+        {
+            var dbUser = _context.Users.FirstOrDefault(u => u.Email.ToLower().Equals(email.ToLower()) && u.Password.Equals(password));
+            return (dbUser != null) ? new UserViewModel()
+            {
+                Id = dbUser.Id,
+                Email = dbUser.Email,
+                Password = dbUser.Password,
+                Phone = dbUser.Phone,
+                Barangay = dbUser.Barangay,
+                Profile = dbUser.Profile,
+                Role = dbUser.Role,
+                StreetAddress = dbUser.StreetAddress
+            } : null;
         }
     }
 }

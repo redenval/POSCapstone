@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Capstone.Utilities
 {
-    public static class StaticUtilities
+    public static class FunctionHelper
     {
         public static List<string> GetBarangayList()
         {

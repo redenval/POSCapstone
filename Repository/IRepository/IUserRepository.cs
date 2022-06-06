@@ -1,4 +1,4 @@
-﻿using Capstone.Models;
+﻿using Capstone.ViewModels;
 
 namespace Capstone.Repository.IRepository
 {
@@ -7,6 +7,10 @@ namespace Capstone.Repository.IRepository
         void Create(UserViewModel user);
         void Delete(int id);
         void Update(int id, UserViewModel user);
-        bool IsExist(UserViewModel user);
+        UserViewModel IsExist(UserViewModel user);
+        bool IsPhoneNumberExist(string phone);
+        bool IsEmailExist(string email);
+        bool ValidateUserLogin(string email, string password);
+        UserViewModel GetUser(string email, string password);
     }
 }
