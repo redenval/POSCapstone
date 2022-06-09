@@ -7,6 +7,8 @@ using Capstone.Repository.IRepository;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Capstone.ActionFilters;
 using Newtonsoft.Json;
+using System.Collections.Generic;
+using Capstone.Data;
 
 namespace Capstone.Controllers
 {
@@ -14,15 +16,21 @@ namespace Capstone.Controllers
     {
         private readonly ISessionService _sessionService;
         private readonly IUserRepository _userRepository;
+        private readonly IProductRepository _productRepository;
 
-        public HomeController(ISessionService sessionService, IUserRepository userRepository)
+        public HomeController(ISessionService sessionService, IUserRepository userRepository, IProductRepository productRepository)
         {
             _sessionService = sessionService;
             _userRepository = userRepository;
+            _productRepository = productRepository;
         }
 
         public IActionResult Index()
         {
+            _sessionService.SetItems(SessionKeys.UserAccessStatus, (_sessionService.GetItems(SessionKeys.UserAccessStatus, HttpContext) ?? SessionKeys.UserAccessStatusLoggedOut), HttpContext);
+            _sessionService.SetItems(SessionKeys.User, (_sessionService.GetItems(SessionKeys.User, HttpContext) ?? ""), HttpContext);
+            _sessionService.SetItems(SessionKeys.UserAccessRole, (_sessionService.GetItems(SessionKeys.UserAccessRole, HttpContext) ?? ""), HttpContext);
+
             TempData.Remove("ViewData");
             if (TempData["register-success"] != null)
             {
@@ -35,6 +43,39 @@ namespace Capstone.Controllers
         public IActionResult Privacy()
         {
             return View();
+        }
+
+        public IActionResult Store()
+        {
+            StoreViewModel storeViewModel = new StoreViewModel();
+            storeViewModel.Products = _productRepository.GetProducts();
+            return View("Store", storeViewModel);
+        }
+
+        public IActionResult Cart()
+        {
+            if(_sessionService.GetItems(SessionKeys.UserAccessStatus, HttpContext).Equals(SessionKeys.UserAccessStatusLoggedIn))
+            {
+                return View("Cart", _userRepository.GetCartViewModel(_sessionService.GetItems(SessionKeys.User, HttpContext)));
+            }
+            else
+            {
+                return RedirectToAction("Login");
+            }
+        }
+
+        public IActionResult AddToCart(string id)
+        {
+            if(_sessionService.GetItems(SessionKeys.UserAccessStatus, HttpContext).Equals(SessionKeys.UserAccessStatusLoggedIn))
+            {
+                UserViewModel user = _userRepository.GetUser(_sessionService.GetItems(SessionKeys.User, HttpContext));
+                _productRepository.AddCartItem(user, id);
+            }
+            else
+            {
+                return RedirectToAction("Login");
+            }
+            return Json(new JsonResult("Success"));
         }
 
         [ImportModelState]
@@ -56,7 +97,7 @@ namespace Capstone.Controllers
                 return RedirectToAction("Login");
             }
 
-            UserViewModel dbUser = _userRepository.GetUser(user.Email, user.Password);
+            UserViewModel dbUser = _userRepository.GetUser(user.Email);
 
             if(dbUser != null)
             {
@@ -113,8 +154,7 @@ namespace Capstone.Controllers
                 {
                     ModelState.AddModelError("Phone", "Please provide a valid phone number");
                     ViewBag.BarangayList = FunctionHelper.GetBarangayList().Select((value, index) => new { value, index }).Select(x => new SelectListItem() { Value = x.index.ToString(), Text = x.value });
-                    return RedirectToAction("Register");
-                }
+                    return RedirectToAction("Register"); }
                 else if (_userRepository.IsPhoneNumberExist(formattedPhoneNumber))
                 {
                     ModelState.AddModelError("Phone", "Phone number already exists");

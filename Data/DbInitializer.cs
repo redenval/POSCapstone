@@ -11,6 +11,20 @@ namespace Capstone.Data
         {
             context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
+
+
+            for (int i = 0; i < 10; i++)
+            {
+                Product product = new Product()
+                {
+                    BaseName = $"Water {i+1}L",
+                    BasePrice = 1.00 * (i+1),
+                    Category = (Utilities.ProductCategory)(i % 1),
+                    IsActive = true,
+                };
+                context.Products.Add(product);
+            }
+            context.SaveChanges();
         }
     }
 }

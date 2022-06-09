@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Capstone.Data
 {
-    public class ProductThumbnail
+    public class ProductPromoImage
     {
         [Key]
         public int Id { get; set; }

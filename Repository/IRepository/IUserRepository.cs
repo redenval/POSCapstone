@@ -1,4 +1,5 @@
-﻿using Capstone.ViewModels;
+﻿using Capstone.Data;
+using Capstone.ViewModels;
 
 namespace Capstone.Repository.IRepository
 {
@@ -11,6 +12,7 @@ namespace Capstone.Repository.IRepository
         bool IsPhoneNumberExist(string phone);
         bool IsEmailExist(string email);
         bool ValidateUserLogin(string email, string password);
-        UserViewModel GetUser(string email, string password);
+        UserViewModel GetUser(string email);
+        CartViewModel GetCartViewModel(string email);
     }
 }

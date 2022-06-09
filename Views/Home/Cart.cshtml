@@ -1,0 +1,90 @@
+﻿@model Capstone.ViewModels.CartViewModel
+
+@{
+}
+
+<style>
+    h1 {
+        font-size: 4rem;
+        font-weight: bold;
+    }
+
+    img {
+        width: 150px;
+        height: 150px;
+    }
+
+    .quantity {
+        width: 40px; 
+    }
+</style>
+
+<div class="container mt-5 p-5">
+    <div class="row">
+        <div class="col-8">
+            <h1>MY CART</h1>
+        </div>
+        <div class="col-3">
+            <a href="/Home/Store">CONTINUE SHOPPING</a>
+        </div>
+    </div>
+    <div class="row">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                    </th>
+                    <th>
+                        Item Name
+                    </th>
+                    <th>
+                        Quantity
+                    </th>
+                    <th>
+                        Price
+                    </th>
+                    <th>
+                        Action
+                    </th>
+
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Cart)
+                {
+                    <tr>
+                        <td>
+                            <img src="@item.Image" class="rounded mx-auto d-block img-fluid" alt="...">
+                        </td>
+                        <td class="align-middle">
+                            @item.Name
+                        </td>
+                        <td class="align-middle">
+                            <input class="quantity" type="number" name="quantity" value="@item.Quantity" />
+                        </td>
+                        <td class="align-middle">
+                            PHP @(item.Price * item.Quantity)
+                        </td>
+                        <td class="align-middle">
+                            @using (Html.BeginForm())
+                            {
+                                <input type="hidden" name="id" value="@item.Id" />
+                                <button class="btn btn-danger" type="submit">REMOVE</button>
+                            }
+                        </td>
+                    </tr>
+                }
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <th>TOTAL</th>
+                    <th>PHP 150.00</th>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="row justify-content-end">
+        <button class="btn btn-info">PROCEED TO CHECKOUT</button>
+    </div>
+</div>

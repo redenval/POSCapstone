@@ -4,6 +4,7 @@ using Capstone.Data;
 using Capstone.ViewModels;
 using Capstone.Repository.IRepository;
 using Capstone.Utilities;
+using System.Collections.Generic;
 
 namespace Capstone.Repository
 {
@@ -20,7 +21,7 @@ namespace Capstone.Repository
         {
             if (IsExist(user) == null)
             {
-                _context.Users.Add(new User() { Email = user.Email, Password = user.Password, StreetAddress = user.StreetAddress, Barangay = user.Barangay, Phone = user.Phone, Profile = user.Profile, Role = SessionKeys.UserAccessRoleDefault });
+                _context.Users.Add(new User() { Email = user.Email, Password = user.Password, StreetAddress = user.StreetAddress, Barangay = user.Barangay, Phone = user.Phone, Profile = user.Profile, Role = SessionKeys.UserAccessRoleDefault});
                 _context.SaveChanges();
             }
         }
@@ -70,9 +71,9 @@ namespace Capstone.Repository
             return (dbUser != null) ? true : false;
         }
 
-        public UserViewModel GetUser(string email, string password)
+        public UserViewModel GetUser(string email)
         {
-            var dbUser = _context.Users.FirstOrDefault(u => u.Email.ToLower().Equals(email.ToLower()) && u.Password.Equals(password));
+            var dbUser = _context.Users.FirstOrDefault(u => u.Email.ToLower().Equals(email.ToLower()));
             return (dbUser != null) ? new UserViewModel()
             {
                 Id = dbUser.Id,
@@ -84,6 +85,23 @@ namespace Capstone.Repository
                 Role = dbUser.Role,
                 StreetAddress = dbUser.StreetAddress
             } : null;
+        }
+
+        public CartViewModel GetCartViewModel(string email)
+        {
+            var dbUser = _context.Users.FirstOrDefault(u => u.Email.ToLower().Equals(email.ToLower()));
+            CartViewModel cart = new CartViewModel();
+            cart.user = GetUser(email);
+            List<CartItemViewModel> cartItems = new List<CartItemViewModel>();
+            List<CartProduct> cartProducts = _context.CartProducts.Where(u => u.User == dbUser).ToList();
+            foreach (var item in cartProducts)
+            {
+                Product product = _context.Products.Where(m => m.CartProducts.Contains(item)).FirstOrDefault();
+                cartItems.Add(new CartItemViewModel() { Id = item.Id, Image = (product.BaseImage == null) ? "" : product.BaseImage.Path, Name = product.BaseName, Price = product.BasePrice, Quantity = item.Quantity});
+            }
+            cart.Cart = cartItems;
+
+            return cart;
         }
     }
 }

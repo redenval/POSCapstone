@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Capstone.Data
 {
@@ -15,5 +16,6 @@ namespace Capstone.Data
         public string StreetAddress { get; set; }
         public string Barangay { get; set; }
         public ICollection<Order> Orders { get; set; }
+        public ICollection<CartProduct> CartProducts { get; set; }
     }
 }
