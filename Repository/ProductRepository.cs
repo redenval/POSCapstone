@@ -15,12 +15,34 @@ namespace Capstone.Repository
         {
             _context = context;
         }
+        public void SubtractCartItem(UserViewModel user, string id)
+        {
+            User dbUser = _context.Users.Where(u => u.Email.Equals(user.Email)).FirstOrDefault();
+            Product product = _context.Products.Where(p => p.Id.ToString().Equals(id)).FirstOrDefault();
+            if (product != null)
+            {
+                CartProduct cartProduct = _context.CartProducts.Where(p => p.Product.Equals(product) && p.User == dbUser).FirstOrDefault();
+                if (cartProduct != null)
+                {
+                    if (cartProduct.Quantity >= 2)
+                    {
+                        cartProduct.Quantity--;
+                    }
+                    else
+                    {
+                        _context.CartProducts.Remove(cartProduct);
+                    }
+
+                }
+            }
+            _context.SaveChanges();
+        }
 
         public void AddCartItem(UserViewModel user, string id)
         {
             User dbUser = _context.Users.Where(u => u.Email.Equals(user.Email)).FirstOrDefault();
             Product product = _context.Products.Where(p => p.Id.ToString().Equals(id)).FirstOrDefault();
-            if(product != null)
+            if (product != null)
             {
                 CartProduct cartProduct = _context.CartProducts.Where(p => p.Product.Equals(product) && p.User == dbUser).FirstOrDefault();
                 if (cartProduct != null)
@@ -49,7 +71,8 @@ namespace Capstone.Repository
                 {
                     model.Name = item.PromoName;
                     model.Price = item.PromoPrice;
-                }else
+                }
+                else
                 {
                     model.Name = item.BaseName;
                     model.Price = item.BasePrice;

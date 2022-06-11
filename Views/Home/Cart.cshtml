@@ -1,6 +1,11 @@
 ﻿@model Capstone.ViewModels.CartViewModel
 
 @{
+    double totalPrice = 0;
+    for (int i = 0; i < Model.Cart.Count(); i++)
+    {
+       totalPrice += Model.Cart.ToList()[i].Price * Model.Cart.ToList()[i].Quantity; 
+    }
 }
 
 <style>
@@ -15,7 +20,7 @@
     }
 
     .quantity {
-        width: 40px; 
+        width: 40px;
     }
 </style>
 
@@ -25,7 +30,7 @@
             <h1>MY CART</h1>
         </div>
         <div class="col-3">
-            <a href="/Home/Store">CONTINUE SHOPPING</a>
+            <a href="/Store">CONTINUE SHOPPING</a>
         </div>
     </div>
     <div class="row">
@@ -33,26 +38,30 @@
             <thead>
                 <tr>
                     <th>
+                        Product
                     </th>
                     <th>
-                        Item Name
-                    </th>
-                    <th>
-                        Quantity
+                        Description
                     </th>
                     <th>
                         Price
                     </th>
                     <th>
+                        Unit
+                    </th>
+                    <th>
+                        Total
+                    </th>
+                    <th>
                         Action
                     </th>
-
                 </tr>
             </thead>
             <tbody>
                 @foreach (var item in Model.Cart)
                 {
                     <tr>
+                        <input type="hidden" class="item_id" name="name" value="@item.Id" />
                         <td>
                             <img src="@item.Image" class="rounded mx-auto d-block img-fluid" alt="...">
                         </td>
@@ -60,7 +69,11 @@
                             @item.Name
                         </td>
                         <td class="align-middle">
-                            <input class="quantity" type="number" name="quantity" value="@item.Quantity" />
+                            PHP @(item.Price)
+                        </td>
+                        <td class="align-middle">
+                            <input class="quantity item_units" id="" type="number" name="quantity" value="@item.Quantity" />
+                            <input class="item_units_hidden" type="hidden" name="quantity" value="@item.Quantity" />
                         </td>
                         <td class="align-middle">
                             PHP @(item.Price * item.Quantity)
@@ -79,7 +92,7 @@
                     <td></td>
                     <td></td>
                     <th>TOTAL</th>
-                    <th>PHP 150.00</th>
+                    <th>PHP @totalPrice.ToString("0.00")</th>
                 </tr>
             </tbody>
         </table>
@@ -88,3 +101,50 @@
         <button class="btn btn-info">PROCEED TO CHECKOUT</button>
     </div>
 </div>
+
+@section Scripts {
+<script>
+    $(function(){
+        $('.item_units').on('change input', function () {
+            let id = $($(this).parent()).parent().children('.item_id').val();
+            let oldUnit = $(this).parent().children('.item_units_hidden').val();
+            let currentUnit = $(this).val();
+            let op = parseInt(oldUnit) - parseInt(currentUnit);
+            if (op < 0) {
+                $.ajax({
+                    type: 'POST',
+                    url: "/Home/AddToCart",
+                    data: { "id": id, },
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.success) {
+                            window.location = '/Cart'
+                            console.log('Add to cart');
+                        }
+                        else {
+                            window.location = "/Login"
+                        }
+                    }
+                });
+
+            } else if (op > 0) {
+                $.ajax({
+                    type: 'POST',
+                    url: "/Home/SubtractToCart",
+                    data: { "id": id, },
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.success) {
+                            window.location = '/Cart'            
+                            console.log('Subtract to cart');
+                        }
+                        else {
+                            window.location = "/Login"
+                        }
+                    }
+                });
+            }
+        });
+    });
+</script>
+}

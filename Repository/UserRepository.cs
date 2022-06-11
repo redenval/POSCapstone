@@ -97,7 +97,7 @@ namespace Capstone.Repository
             foreach (var item in cartProducts)
             {
                 Product product = _context.Products.Where(m => m.CartProducts.Contains(item)).FirstOrDefault();
-                cartItems.Add(new CartItemViewModel() { Id = item.Id, Image = (product.BaseImage == null) ? "" : product.BaseImage.Path, Name = product.BaseName, Price = product.BasePrice, Quantity = item.Quantity});
+                cartItems.Add(new CartItemViewModel() { Id = product.Id, Image = (product.BaseImage == null) ? "" : product.BaseImage.Path, Name = product.BaseName, Price = product.BasePrice, Quantity = item.Quantity});
             }
             cart.Cart = cartItems;
 

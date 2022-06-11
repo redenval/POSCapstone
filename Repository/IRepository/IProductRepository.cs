@@ -10,5 +10,6 @@ namespace Capstone.Repository.IRepository
     {
         List<ProductViewModel> GetProducts();
         void AddCartItem(UserViewModel user, string id);
+        void SubtractCartItem(UserViewModel user, string id);
     }
 }

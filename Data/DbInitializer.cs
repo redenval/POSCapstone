@@ -12,6 +12,7 @@ namespace Capstone.Data
             context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
 
+            context.Users.Add(new User() { Email = "admin@admin.com", Password = "qwe123", Role = "Default", Phone ="09652279274"});
 
             for (int i = 0; i < 10; i++)
             {

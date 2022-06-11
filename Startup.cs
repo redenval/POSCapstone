@@ -32,7 +32,7 @@ namespace Capstone
             services.AddControllersWithViews();
 
             services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-            
+
             //Services
             services.AddScoped<ISessionService, SessionService>();
 
@@ -70,12 +70,30 @@ namespace Capstone
             app.UseRouting();
 
             app.UseAuthorization();
+
             app.UseSession();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapControllerRoute(
+                    name: "Store",
+                    pattern: "/Store",
+                    defaults: new { controller = "Home", action = "Store" });
+                endpoints.MapControllerRoute(
+                    name: "Login",
+                    pattern: "/Login",
+                    defaults: new { controller = "Home", action = "Login" });
+                endpoints.MapControllerRoute(
+                    name: "Register",
+                    pattern: "/Register",
+                    defaults: new { controller = "Home", action = "Register" });
+                endpoints.MapControllerRoute(
+                    name: "Cart",
+                    pattern: "/Cart",
+                    defaults: new { controller = "Home", action = "Cart" });
             });
         }
     }

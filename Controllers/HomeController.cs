@@ -49,6 +49,7 @@ namespace Capstone.Controllers
         {
             StoreViewModel storeViewModel = new StoreViewModel();
             storeViewModel.Products = _productRepository.GetProducts();
+
             return View("Store", storeViewModel);
         }
 
@@ -60,7 +61,7 @@ namespace Capstone.Controllers
             }
             else
             {
-                return RedirectToAction("Login");
+                return Redirect("/Login");
             }
         }
 
@@ -70,12 +71,25 @@ namespace Capstone.Controllers
             {
                 UserViewModel user = _userRepository.GetUser(_sessionService.GetItems(SessionKeys.User, HttpContext));
                 _productRepository.AddCartItem(user, id);
+                return Json(new { Success = true });
             }
             else
             {
-                return RedirectToAction("Login");
+                return Json(new { Success = false });
             }
-            return Json(new JsonResult("Success"));
+        }
+        public IActionResult SubtractToCart(string id)
+        {
+            if(_sessionService.GetItems(SessionKeys.UserAccessStatus, HttpContext).Equals(SessionKeys.UserAccessStatusLoggedIn))
+            {
+                UserViewModel user = _userRepository.GetUser(_sessionService.GetItems(SessionKeys.User, HttpContext));
+                _productRepository.SubtractCartItem(user, id);
+                return Json(new { Success = true });
+            }
+            else
+            {
+                return Json(new { Success = false });
+            }
         }
 
         [ImportModelState]
@@ -94,7 +108,7 @@ namespace Capstone.Controllers
 
             if(!ModelState.IsValid)
             {
-                return RedirectToAction("Login");
+                return Redirect("/Login");
             }
 
             UserViewModel dbUser = _userRepository.GetUser(user.Email);
@@ -138,7 +152,7 @@ namespace Capstone.Controllers
             if (!ModelState.IsValid)
             {
                 ViewBag.BarangayList = FunctionHelper.GetBarangayList().Select((value, index) => new { value, index }).Select(x => new SelectListItem() { Value = x.index.ToString(), Text = x.value });
-                return RedirectToAction("Register");
+                return Redirect("/Register");
             }
 
             var phoneNumberUtil = PhoneNumbers.PhoneNumberUtil.GetInstance();
@@ -154,7 +168,7 @@ namespace Capstone.Controllers
                 {
                     ModelState.AddModelError("Phone", "Please provide a valid phone number");
                     ViewBag.BarangayList = FunctionHelper.GetBarangayList().Select((value, index) => new { value, index }).Select(x => new SelectListItem() { Value = x.index.ToString(), Text = x.value });
-                    return RedirectToAction("Register"); }
+                    return Redirect("/Register"); }
                 else if (_userRepository.IsPhoneNumberExist(formattedPhoneNumber))
                 {
                     ModelState.AddModelError("Phone", "Phone number already exists");

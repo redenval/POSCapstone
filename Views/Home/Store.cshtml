@@ -50,8 +50,13 @@
                     url: "/Home/AddToCart",
                     data: { "id": id, },
                     dataType: "json",
-                    success: function (resultData) {
-                        console.log(resultData.response);
+                    success: function (response) {
+                        if (response.success) {
+                            
+                        }
+                        else {
+                            window.location = "/Login"
+                        }
                     }
                 });
             });
