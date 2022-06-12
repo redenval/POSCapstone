@@ -94,6 +94,14 @@ namespace Capstone
                     name: "Cart",
                     pattern: "/Cart",
                     defaults: new { controller = "Home", action = "Cart" });
+                endpoints.MapControllerRoute(
+                    name: "ViewOrders",
+                    pattern: "/ViewOrders",
+                    defaults: new { controller = "Home", action = "ViewOrders" });
+                endpoints.MapControllerRoute(
+                    name: "OrderProcess",
+                    pattern: "/OrderBeingProcess",
+                    defaults: new { controller = "Home", action = "OrderBeingProcess" });
             });
         }
     }

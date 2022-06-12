@@ -14,5 +14,8 @@ namespace Capstone.Repository.IRepository
         void SubtractCartItem(UserViewModel user, string id);
         void RemoveCartItem(UserViewModel user, string id);
         void CheckoutOrder(UserViewModel user);
+        int GetTotalCartItem(UserViewModel user);
+
+        ViewOrderViewModel GetUserOrders(UserViewModel user);
     }
 }

@@ -4,6 +4,10 @@
 }
 
 <style>
+    h1 {
+        font-size: 4rem;
+        font-weight: bold;
+    }
     .product-title > h4 {
         height: 50px;
         font-size: 18px;
@@ -16,16 +20,16 @@
 </style>
 
 
-<div>
+<div class="container">
+    <br />
+    <br />
+    <br />
+    <br />
 
     <div class="header row p-5">
         <div class="col-8">
-            <div>
-                <h1>Heidi's Collection</h1>
-            </div>
-            <div>
+                <h1>HEIDI'S COLLECTION</h1>
                 <p>At heidi's we ensure that your water is purified and taste good.</p>
-            </div>
         </div>
         <div class="col-3 text-right">
             <a href="/Cart">PROCEED TO CART</a>
@@ -67,11 +71,10 @@
         function show_toast(item, msg)
         {
             let toastBodyStart = $('<div class="toast-body"></div>').append('<span class="toast-message">'+ item + '</span>' + msg);
-            let toastStart = $('<div class="toast" data-autohide="true" data-delay="3000"></div>').append(toastBodyStart);
+            let toastStart = $('<div class="toast" data-animation="true" data-autohide="true" data-delay="2500"></div>').append(toastBodyStart);
             $('.toast-container').append(toastStart);
             $(toastStart).on('hidden.bs.toast', function () {
-                $($(this).parent()).remove($(this));
-                console.log('toast hidden');
+                $(toastStart).remove();
             });
             $(toastStart).toast('show');
         }

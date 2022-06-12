@@ -53,6 +53,24 @@ namespace Capstone.Controllers
             return View();
         }
 
+        public IActionResult OrderBeingProcess()
+        {
+            return View();
+        }
+
+        public IActionResult ViewOrders()
+        {
+            if(_sessionService.GetItems(SessionKeys.UserAccessStatus, HttpContext).Equals(SessionKeys.UserAccessStatusLoggedIn))
+            {
+                UserViewModel user = _userRepository.GetUser(_sessionService.GetItems(SessionKeys.User, HttpContext));
+                return View("ViewOrders", _productRepository.GetUserOrders(user));
+            }
+            else
+            {
+                return Redirect("/");
+            }
+        }
+
         public IActionResult Store()
         {
             StoreViewModel storeViewModel = new StoreViewModel();
@@ -84,6 +102,20 @@ namespace Capstone.Controllers
             {
                 return Json(new { Success = false });
             }
+        }
+
+        public IActionResult GetTotalCartItem()
+        {
+            if(_sessionService.GetItems(SessionKeys.UserAccessStatus, HttpContext).Equals(SessionKeys.UserAccessStatusLoggedIn))
+            {
+                UserViewModel user = _userRepository.GetUser(_sessionService.GetItems(SessionKeys.User, HttpContext));
+                return Json(new { Success = true, total = _productRepository.GetTotalCartItem(user) });
+            }
+            else
+            {
+                return Json(new { Success = false });
+            }
+
         }
 
         public IActionResult AddToCart(string id)

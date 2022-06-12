@@ -50,7 +50,7 @@ namespace Capstone.Data
 
             Product waterBottle350ml = new Product();
             waterBottle350ml.BaseImage = new ProductBaseImage() { Path = "~/images/noimage.png", Product = waterBottle350ml };
-            waterBottle350ml.BaseName = $"Water Bottle 350 mL";
+            waterBottle350ml.BaseName = $"Plastic Water Bottle 350 mL";
             waterBottle350ml.BasePrice = 4.50;
             waterBottle350ml.Category = Utilities.ProductCategory.Small;
             waterBottle350ml.IsActive = true;
@@ -58,7 +58,7 @@ namespace Capstone.Data
 
             Product waterBottle500ml = new Product();
             waterBottle500ml.BaseImage = new ProductBaseImage() { Path = "~/images/noimage.png", Product = waterBottle500ml };
-            waterBottle500ml.BaseName = $"Water Bottle 500 mL";
+            waterBottle500ml.BaseName = $"Plastic Water Bottle 500 mL";
             waterBottle500ml.BasePrice = 6;
             waterBottle500ml.Category = Utilities.ProductCategory.Medium;
             waterBottle500ml.IsActive = true;
@@ -66,7 +66,7 @@ namespace Capstone.Data
 
             Product waterBottle1L = new Product();
             waterBottle1L.BaseImage = new ProductBaseImage() { Path = "~/images/noimage.png", Product = waterBottle1L };
-            waterBottle1L.BaseName = $"Water Bottle 1 L";
+            waterBottle1L.BaseName = $"Plastic Water Bottle 1 L";
             waterBottle1L.BasePrice = 10;
             waterBottle1L.Category = Utilities.ProductCategory.Large;
             waterBottle1L.IsActive = true;

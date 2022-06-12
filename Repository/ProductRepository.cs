@@ -128,7 +128,65 @@ namespace Capstone.Repository
                 _context.ProductOrders.Add(productOrder);
             }
             _context.Orders.Add(order);
+
             _context.SaveChanges();
+
+            foreach (var item in listOfProducts)
+            {
+                _context.CartProducts.Remove(item);
+            }
+
+            _context.SaveChanges();
+        }
+
+        public int GetTotalCartItem(UserViewModel user)
+        {
+            User dbUser = _context.Users.Where(u => u.Email.Equals(user.Email)).FirstOrDefault();
+            var listOfProducts = _context.CartProducts.Where(m => m.User == dbUser).ToList();
+            int count = 0;
+            foreach (var item in listOfProducts)
+            {
+                count += item.Quantity;
+            }
+            return count;
+        }
+
+        public ViewOrderViewModel GetUserOrders(UserViewModel user)
+        {
+            User dbUser = _context.Users.Where(u => u.Email.Equals(user.Email)).FirstOrDefault();
+            var listOfOrders = _context.Orders.Where(m => m.User == dbUser).ToList();
+            ViewOrderViewModel viewOrder = new ViewOrderViewModel();
+            List<OrderViewModel> orderViewModels = new List<OrderViewModel>();
+            foreach (var item in listOfOrders)
+            {
+                var listOfProductOrders = _context.ProductOrders.Where(m => m.Order == item).ToList();
+                List<ProductOrderViewModel> productOrderViewModels = new List<ProductOrderViewModel>();
+                foreach (var products in listOfProductOrders)
+                {
+                    Product product = _context.Products.Where(m => m.ProductOrders.Contains(products)).FirstOrDefault();
+                    string imagePath = _context.BaseImages.Where(m => m.Product == product).FirstOrDefault().Path;
+                    productOrderViewModels.Add(new ProductOrderViewModel()
+                    {
+                        Id = products.Id,
+                        Image = imagePath,
+                        Description = product.Description,
+                        Name = product.BaseName,
+                        Price = product.BasePrice,
+                        Status = products.Status,
+                        Quantity = products.Quantity,
+                        TotalPrice = (product.BasePrice * products.Quantity)
+                    });
+                }
+                OrderViewModel order = new OrderViewModel();
+                order.Id = item.Id;
+                order.Count = listOfProductOrders.Count();
+                order.Date = "DATE: " + item.DateCreated.ToShortDateString() + " TIME: " + item.DateCreated.ToShortTimeString();
+                order.ProductOrders = productOrderViewModels;
+                orderViewModels.Add(order);
+            }
+            orderViewModels.Reverse();
+            viewOrder.Orders = orderViewModels;
+            return viewOrder;
         }
     }
 }
