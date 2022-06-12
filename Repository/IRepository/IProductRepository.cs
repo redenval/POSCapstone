@@ -9,7 +9,10 @@ namespace Capstone.Repository.IRepository
     public interface IProductRepository
     {
         List<ProductViewModel> GetProducts();
+        string GetCartItem(UserViewModel user, string id);
         void AddCartItem(UserViewModel user, string id);
         void SubtractCartItem(UserViewModel user, string id);
+        void RemoveCartItem(UserViewModel user, string id);
+        void CheckoutOrder(UserViewModel user);
     }
 }

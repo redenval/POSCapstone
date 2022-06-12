@@ -4,7 +4,7 @@
     double totalPrice = 0;
     for (int i = 0; i < Model.Cart.Count(); i++)
     {
-       totalPrice += Model.Cart.ToList()[i].Price * Model.Cart.ToList()[i].Quantity; 
+        totalPrice += Model.Cart.ToList()[i].Price * Model.Cart.ToList()[i].Quantity;
     }
 }
 
@@ -19,17 +19,29 @@
         height: 150px;
     }
 
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        /* display: none; <- Crashes Chrome on hover */
+        -webkit-appearance: none;
+        margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+    }
+
+    input[type=number] {
+        -moz-appearance: textfield; /* Firefox */
+    }
+
     .quantity {
-        width: 40px;
+        pointer-events: none;
+        width: 30px;
     }
 </style>
 
-<div class="container mt-5 p-5">
+<div class="container p-5">
     <div class="row">
         <div class="col-8">
             <h1>MY CART</h1>
         </div>
-        <div class="col-3">
+        <div class="col-3 text-right">
             <a href="/Store">CONTINUE SHOPPING</a>
         </div>
     </div>
@@ -37,22 +49,22 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th>
+                    <th class="text-center">
                         Product
                     </th>
-                    <th>
+                    <th class="text-center">
                         Description
                     </th>
-                    <th>
+                    <th class="text-center">
                         Price
                     </th>
-                    <th>
+                    <th class="text-center">
                         Unit
                     </th>
-                    <th>
+                    <th class="text-center">
                         Total
                     </th>
-                    <th>
+                    <th class="text-center">
                         Action
                     </th>
                 </tr>
@@ -62,27 +74,29 @@
                 {
                     <tr>
                         <input type="hidden" class="item_id" name="name" value="@item.Id" />
-                        <td>
-                            <img src="@item.Image" class="rounded mx-auto d-block img-fluid" alt="...">
+                        <td style="width: 20%;" class="text-center">
+                            <img src="@Url.Content(item.Image)" class="rounded mx-auto d-block img-fluid" alt="...">
                         </td>
-                        <td class="align-middle">
+                        <td style="width: 16%;" class="align-middle text-center">
                             @item.Name
                         </td>
-                        <td class="align-middle">
-                            PHP @(item.Price)
+                        <td style="width: 16%;" class="align-middle text-center">
+                            PHP @(item.Price.ToString("0.00"))
                         </td>
-                        <td class="align-middle">
-                            <input class="quantity item_units" id="" type="number" name="quantity" value="@item.Quantity" />
-                            <input class="item_units_hidden" type="hidden" name="quantity" value="@item.Quantity" />
+                        <td style="width: 16%;" class="align-middle text-center">
+                            <button class="subtract-button btn btn-success">-</button>
+                            <input class="quantity item_units unit" type="number" name="quantity" value="@item.Quantity" />
+                            <input class="price" type="hidden" name="price" value="@item.Price" />
+                            <button class="add-button btn btn-success">+</button>
                         </td>
-                        <td class="align-middle">
-                            PHP @(item.Price * item.Quantity)
+                        <td style="width: 16%;" class="align-middle text-center">
+                            PHP <span class="total_price">@((item.Price * item.Quantity).ToString("0.00"))</span>
                         </td>
-                        <td class="align-middle">
+                        <td style="width: 16%;" class="align-middle text-center">
                             @using (Html.BeginForm())
                             {
                                 <input type="hidden" name="id" value="@item.Id" />
-                                <button class="btn btn-danger" type="submit">REMOVE</button>
+                                <button class="remove-item btn btn-danger" type="submit">REMOVE</button>
                             }
                         </td>
                     </tr>
@@ -92,25 +106,52 @@
                     <td></td>
                     <td></td>
                     <th>TOTAL</th>
-                    <th>PHP @totalPrice.ToString("0.00")</th>
+                    <th>PHP <span id="total_cart_price">@totalPrice.ToString("0.00")</span></th>
                 </tr>
             </tbody>
         </table>
     </div>
     <div class="row justify-content-end">
-        <button class="btn btn-info">PROCEED TO CHECKOUT</button>
+        <button class="btn btn-info checkout_button">PROCEED TO CHECKOUT</button>
     </div>
 </div>
 
 @section Scripts {
-<script>
-    $(function(){
-        $('.item_units').on('change input', function () {
-            let id = $($(this).parent()).parent().children('.item_id').val();
-            let oldUnit = $(this).parent().children('.item_units_hidden').val();
-            let currentUnit = $(this).val();
-            let op = parseInt(oldUnit) - parseInt(currentUnit);
-            if (op < 0) {
+    <script>
+        function updateTotalCartPrice() {
+            let price = 0;
+            let productList = $('.total_price');
+            for (var i = 0; i < productList.length; i++) {
+                price += parseFloat($(productList[i]).html());
+            }
+            $('#total_cart_price').html(price.toFixed(2));
+        }
+
+
+        $(function () {
+            $('.checkout_button').on('click', function () {
+                $.ajax({
+                    type: 'POST',
+                    url: "/Home/CheckoutOrder",
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.success) {
+                            console.log('Order successfully created!');
+                            window.location = "/Index";
+                        }
+                        else {
+                            window.location = "/Login";
+                        }
+                    }
+                });
+
+            });
+
+            $('.add-button').on('click', function () {
+                let id = $($(this).parent()).parent().children('.item_id').val();
+                let unit = $(this).parent().children('.unit');
+                let price = $(this).parent().children('.price');
+                let total_price = $($(this).parent()).parent().find('span.total_price');
                 $.ajax({
                     type: 'POST',
                     url: "/Home/AddToCart",
@@ -118,7 +159,10 @@
                     dataType: "json",
                     success: function (response) {
                         if (response.success) {
-                            window.location = '/Cart'
+                            let unit_value = parseInt($(unit).val());
+                            $(unit).val(unit_value + 1);
+                            $(total_price).html(((unit_value+1) * parseFloat($(price).val())).toFixed(2));
+                            updateTotalCartPrice();
                             console.log('Add to cart');
                         }
                         else {
@@ -127,7 +171,15 @@
                     }
                 });
 
-            } else if (op > 0) {
+            });
+
+            $('.subtract-button').on('click', function () {
+                let button = $(this);
+                let parent = $($(this).parent()).parent();
+                let id = $($(this).parent()).parent().children('.item_id').val();
+                let unit = $(this).parent().children('.unit');
+                let price = $(this).parent().children('.price');
+                let total_price = $($(this).parent()).parent().find('span.total_price');
                 $.ajax({
                     type: 'POST',
                     url: "/Home/SubtractToCart",
@@ -135,16 +187,44 @@
                     dataType: "json",
                     success: function (response) {
                         if (response.success) {
-                            window.location = '/Cart'            
+                            let unit_value = parseInt($(unit).val());
+                            $(unit).val(unit_value - 1);
+                            console.log($(total_price).html());
+                            $(total_price).html(((unit_value-1) * parseFloat($(price).val())).toFixed(2));
+                            console.log($(total_price).html());
                             console.log('Subtract to cart');
+                            if (unit_value == 1) {
+                                $(parent).fadeOut();
+                                $(button).attr('disabled', true);
+                            }
+                            updateTotalCartPrice();
                         }
                         else {
                             window.location = "/Login"
                         }
                     }
                 });
-            }
+            });
+
+            $('.remove-item').on('click', function () {
+                let parent = $($($(this).parent()).parent()).parent();
+                let id = $($($(this).parent()).parent()).parent().children('.item_id').val();
+                $(this).attr('disabled', true);
+                $.ajax({
+                    type: 'POST',
+                    url: "/Home/RemoveToCart",
+                    data: { "id": id, },
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.success) {
+                            $(parent).fadeOut('fast', function () {
+                                $(this).remove();
+                                updateTotalCartPrice();
+                            });
+                        }
+                    }
+                });
+            });
         });
-    });
-</script>
+    </script>
 }

@@ -1,5 +1,6 @@
 ﻿using Capstone.Data;
 using Capstone.Repository.IRepository;
+using Capstone.Utilities;
 using Capstone.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -65,8 +66,10 @@ namespace Capstone.Repository
             foreach (var item in dbProduct)
             {
                 ProductViewModel model = new ProductViewModel();
+                ProductBaseImage pbi = _context.BaseImages.Where(m => m.Product == item).FirstOrDefault();
                 model.Id = item.Id;
                 model.Description = item.Description;
+                model.Image = pbi.Path;
                 if (item.PromoStatus == true)
                 {
                     model.Name = item.PromoName;
@@ -81,6 +84,51 @@ namespace Capstone.Repository
             }
 
             return products;
+        }
+
+        public void RemoveCartItem(UserViewModel user, string id)
+        {
+            User dbUser = _context.Users.Where(u => u.Email.Equals(user.Email)).FirstOrDefault();
+            Product product = _context.Products.Where(p => p.Id.ToString().Equals(id)).FirstOrDefault();
+            if (product != null)
+            {
+                CartProduct cartProduct = _context.CartProducts.Where(p => p.Product.Equals(product) && p.User == dbUser).FirstOrDefault();
+                if (cartProduct != null)
+                {
+                    _context.CartProducts.Remove(cartProduct);
+                }
+            }
+            _context.SaveChanges();
+        }
+
+        public string GetCartItem(UserViewModel user, string id)
+        {
+            User dbUser = _context.Users.Where(u => u.Email.Equals(user.Email)).FirstOrDefault();
+            Product product = _context.Products.Where(p => p.Id.ToString().Equals(id)).FirstOrDefault();
+            if (product != null)
+            {
+                return product.BaseName;
+            }
+            return "";
+        }
+
+        public void CheckoutOrder(UserViewModel user)
+        {
+            User dbUser = _context.Users.Where(u => u.Email.Equals(user.Email)).FirstOrDefault();
+            var listOfProducts = _context.CartProducts.Where(m => m.User == dbUser).ToList();
+            Order order = new Order() { DateCreated = DateTime.Now, User = dbUser };
+            foreach (var item in listOfProducts)
+            {
+                Product product = _context.Products.Where(m=>m.CartProducts.Contains(item)).FirstOrDefault();
+                ProductOrder productOrder = new ProductOrder();
+                productOrder.Order = order;
+                productOrder.Status = EnumsCollection.ProductOrderStatus.Pending.ToString();
+                productOrder.Quantity = item.Quantity;
+                productOrder.Product = product;
+                _context.ProductOrders.Add(productOrder);
+            }
+            _context.Orders.Add(order);
+            _context.SaveChanges();
         }
     }
 }

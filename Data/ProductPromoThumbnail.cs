@@ -6,12 +6,11 @@ using System.Threading.Tasks;
 
 namespace Capstone.Data
 {
-    public class Order
+    public class ProductPromoThumbnail
     {
         [Key]
         public int Id { get; set; }
-        public ICollection<ProductOrder> ProductOrders { get; set; }
-        public DateTime DateCreated { get; set; }
-        public User User { get; set; }
+        public string Path { get; set; }
+        public Product Product { get; set; }
     }
 }

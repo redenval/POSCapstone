@@ -36,6 +36,14 @@ namespace Capstone.Controllers
             {
                 ViewBag.RegisterSuccess = true;
             }
+            if (TempData["login-success"] != null)
+            {
+                ViewBag.LoginSuccess = true;
+            }
+            if (TempData["logout-success"] != null)
+            {
+                ViewBag.LogoutSuccess = true;
+            }
 
             return View("Index");
         }
@@ -64,6 +72,19 @@ namespace Capstone.Controllers
                 return Redirect("/Login");
             }
         }
+        public IActionResult CheckoutOrder()
+        {
+            if(_sessionService.GetItems(SessionKeys.UserAccessStatus, HttpContext).Equals(SessionKeys.UserAccessStatusLoggedIn))
+            {
+                UserViewModel user = _userRepository.GetUser(_sessionService.GetItems(SessionKeys.User, HttpContext));
+                _productRepository.CheckoutOrder(user);
+                return Json(new { Success = true });
+            }
+            else
+            {
+                return Json(new { Success = false });
+            }
+        }
 
         public IActionResult AddToCart(string id)
         {
@@ -71,7 +92,7 @@ namespace Capstone.Controllers
             {
                 UserViewModel user = _userRepository.GetUser(_sessionService.GetItems(SessionKeys.User, HttpContext));
                 _productRepository.AddCartItem(user, id);
-                return Json(new { Success = true });
+                return Json(new { Success = true, Item = _productRepository.GetCartItem(user, id) });
             }
             else
             {
@@ -84,6 +105,20 @@ namespace Capstone.Controllers
             {
                 UserViewModel user = _userRepository.GetUser(_sessionService.GetItems(SessionKeys.User, HttpContext));
                 _productRepository.SubtractCartItem(user, id);
+                return Json(new { Success = true });
+            }
+            else
+            {
+                return Json(new { Success = false });
+            }
+        }
+
+        public IActionResult RemoveToCart(string id)
+        {
+            if(_sessionService.GetItems(SessionKeys.UserAccessStatus, HttpContext).Equals(SessionKeys.UserAccessStatusLoggedIn))
+            {
+                UserViewModel user = _userRepository.GetUser(_sessionService.GetItems(SessionKeys.User, HttpContext));
+                _productRepository.RemoveCartItem(user, id);
                 return Json(new { Success = true });
             }
             else
@@ -120,6 +155,7 @@ namespace Capstone.Controllers
                 _sessionService.SetItems(SessionKeys.UserAccessRole, (dbUser.Role.Equals(SessionKeys.UserAccessRoleAdmin) ? SessionKeys.UserAccessRoleAdmin : SessionKeys.UserAccessRoleDefault), HttpContext);
             }
 
+            TempData["login-success"] = true;
             return RedirectToAction("Index");
         }
 
@@ -129,6 +165,7 @@ namespace Capstone.Controllers
             _sessionService.SetItems(SessionKeys.UserAccessStatus, SessionKeys.UserAccessStatusLoggedOut, HttpContext); ;
             _sessionService.SetItems(SessionKeys.UserAccessRole, "None", HttpContext);
 
+            TempData["logout-success"] = true;
             return RedirectToAction("Index");
         }
 

@@ -4,15 +4,31 @@
 }
 
 <style>
+    .product-title > h4 {
+        height: 50px;
+        font-size: 18px;
+        font-weight: bolder;
+    }
+
+    .product-description {
+        height: 120px;
+    }
 </style>
 
+
 <div>
-    <div class="header">
-        <div>
-            <h1>Heidi's Collection</h1>
+
+    <div class="header row p-5">
+        <div class="col-8">
+            <div>
+                <h1>Heidi's Collection</h1>
+            </div>
+            <div>
+                <p>At heidi's we ensure that your water is purified and taste good.</p>
+            </div>
         </div>
-        <div>
-            <p>At heidi's we ensure that your water is purified and taste good.</p>
+        <div class="col-3 text-right">
+            <a href="/Cart">PROCEED TO CART</a>
         </div>
     </div>
     <div class="row">
@@ -20,16 +36,20 @@
         {
             <div class="product col-3 border-left border-right mt-5 mb-5 pt-5">
                 <div class="featured-img">
-                    <img class="featured-image front" src="//cdn.shopify.com/s/files/1/0324/6453/5687/products/NewProject_54_medium.png?v=1608185389" alt="FloWater Sierra">
+                    <img class="img-fluid" src="@Url.Content(item.Image)" alt="FloWater Sierra">
                     <br />
                     <br />
-                    <h3>@item.Name.ToUpper()</h3>
+                    <div class="product-title">
+                        <h4>@item.Name.ToUpper()</h4>
+                    </div>
                 </div>
                 <div class="product-button mt-4 pb-5">
-                    <span>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin at luctus tortor. Nulla aliquet ligula ipsum, in imperdiet odio suscipit quis.</p>
-                    </span>
-                    <p>PHP @item.Price.ToString("0.00")</p>
+                    <div class="product-description">
+                        <span>
+                            <p>@item.Description</p>
+                        </span>
+                    </div>
+                    <p><strong>PHP @item.Price.ToString("0.00")</strong></p>
                     <div>
                         <input type="hidden" name="id" value="@item.Id" />
                         <button class="addtocart btn btn-info container-fluid" type="submit">ADD TO CART</button>
@@ -38,10 +58,24 @@
             </div>
         }
     </div>
+
 </div>
+
 
 @section Scripts {
     <script>
+        function show_toast(item, msg)
+        {
+            let toastBodyStart = $('<div class="toast-body"></div>').append('<span class="toast-message">'+ item + '</span>' + msg);
+            let toastStart = $('<div class="toast" data-autohide="true" data-delay="3000"></div>').append(toastBodyStart);
+            $('.toast-container').append(toastStart);
+            $(toastStart).on('hidden.bs.toast', function () {
+                $($(this).parent()).remove($(this));
+                console.log('toast hidden');
+            });
+            $(toastStart).toast('show');
+        }
+
         $(function () {
             $('.addtocart').on('click', function () {
                 var id = $(this).parent().children('input').val();
@@ -52,7 +86,7 @@
                     dataType: "json",
                     success: function (response) {
                         if (response.success) {
-                            
+                            show_toast(response.item," was successfully added to your cart!");
                         }
                         else {
                             window.location = "/Login"

@@ -9,6 +9,8 @@ namespace Capstone.Utilities
     {
         Small,
         Medium,
-        Large
+        Large,
+        WithWater,
+        WithNoWater,
     }
 }
