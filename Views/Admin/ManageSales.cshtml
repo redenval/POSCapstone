@@ -1,0 +1,82 @@
+﻿@model Capstone.ViewModels.ManageOrderViewModel
+
+@{
+    var totalSales = Model.DeliveredOrders.Sum(x => x.ProductOrders.Sum(z => z.Quantity * z.Price));
+    var monthlySales = Model.DeliveredOrders.Where(x => DateTime.Parse(x.Date.Replace("DATE: ", "").Replace("TIME: ", "")).Month == DateTime.Today.Month).Sum(x => x.ProductOrders.Sum(z => z.Price * z.Quantity));
+}
+
+<br />
+<br />
+<br />
+<br />
+<br />
+<div class="float-right">
+    <h1><strong>TOTAL SALES</strong></h1>
+    <h4>PHP @totalSales.ToString("0,000.00")</h4>
+</div>
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+
+<div>
+    <div class="float-left">
+        <h4><strong>MONTHLY SALES ( @DateTime.Today.ToString("MMMM yyyy") )</strong></h4>
+        <p>PHP @monthlySales.ToString("0,000.00")</p>
+    </div>
+    <div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="text-center">
+                        Date and Time
+                    </th>
+                    <th class="text-center">
+                        Email
+                    </th>
+                    <th class="text-center">
+                        Phone
+                    </th>
+                    <th class="text-center">
+                        Address
+                    </th>
+                    <th class="text-center">
+                        Units
+                    </th>
+                    <th class="text-center">
+                        Total Price
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.DeliveredOrders)
+                {
+                    var totalUnits = item.ProductOrders.Sum(x => x.Quantity);
+                    <tr>
+                        <td class="text-center">@item.Date.Replace("DATE: ", "").Replace("TIME: ", "")</td>
+                        <td class="text-center">@item.Profile.EmailAddress</td>
+                        <td class="text-center">@item.Profile.PhoneNumber</td>
+                        <td class="text-center">@item.Profile.Address</td>
+                        <td class="text-center">@totalUnits</td>
+                        <td class="text-center">PHP @item.Total.ToString("0,000.00")</td>
+                    </tr>
+                }
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td><strong>TOTAL</strong></td>
+                    <td>
+                        <strong>
+                            PHP @totalSales.ToString("0,000.00")
+                        </strong>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+</div>

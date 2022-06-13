@@ -48,9 +48,26 @@ namespace Capstone.Controllers
             return View("Index");
         }
 
+        public IActionResult About()
+        {
+            return View("About");
+        }
+
         public IActionResult Privacy()
         {
             return View();
+        }
+        public IActionResult Profile()
+        {
+            if(_sessionService.GetItems(SessionKeys.UserAccessStatus, HttpContext).Equals(SessionKeys.UserAccessStatusLoggedIn))
+            {
+                UserViewModel user = _userRepository.GetUser(_sessionService.GetItems(SessionKeys.User, HttpContext));
+                return View("Profile", new ProfileViewModel() { EmailAddress = user.Email, PhoneNumber = user.Phone, Address = $"{user.StreetAddress} {user.Barangay}"});
+            }
+            else
+            {
+                return Redirect("/");
+            }
         }
 
         public IActionResult OrderBeingProcess()
@@ -162,6 +179,10 @@ namespace Capstone.Controllers
         [ImportModelState]
         public IActionResult Login()
         {
+            if(_sessionService.GetItems(SessionKeys.UserAccessStatus, HttpContext).Equals(SessionKeys.UserAccessStatusLoggedIn))
+            {
+                return Redirect("/");
+            }
             return View("Login", new LoginViewModel());
         }
 
@@ -229,7 +250,7 @@ namespace Capstone.Controllers
 
             if (!string.IsNullOrEmpty(user.Phone))
             {
-                var parsedPhoneNumber = phoneNumberUtil.Parse(user.Phone, "PH");
+                var parsedPhoneNumber = phoneNumberUtil.Parse(user.Phone.Replace(" ", ""), "PH");
                 var formattedPhoneNumber = phoneNumberUtil.Format(parsedPhoneNumber, PhoneNumbers.PhoneNumberFormat.INTERNATIONAL);
                 bool isValidPhoneNumber = phoneNumberUtil.IsValidNumber(parsedPhoneNumber);
 
@@ -237,12 +258,13 @@ namespace Capstone.Controllers
                 {
                     ModelState.AddModelError("Phone", "Please provide a valid phone number");
                     ViewBag.BarangayList = FunctionHelper.GetBarangayList().Select((value, index) => new { value, index }).Select(x => new SelectListItem() { Value = x.index.ToString(), Text = x.value });
-                    return Redirect("/Register"); }
+                    return Redirect("/Register");
+                }
                 else if (_userRepository.IsPhoneNumberExist(formattedPhoneNumber))
                 {
                     ModelState.AddModelError("Phone", "Phone number already exists");
+                    return Redirect("/Register"); 
                 }
-
                 phoneNumber = formattedPhoneNumber;
             }
 

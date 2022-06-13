@@ -1,0 +1,364 @@
+﻿@model Capstone.ViewModels.ManageOrderViewModel
+
+@{
+}
+<style>
+    h1 {
+        font-size: 3rem;
+        font-weight: bold;
+    }
+</style>
+
+<div class="container">
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+
+    <!-- PENDING -->
+    <div class="p-2 m-3">
+        <div class="accordion" id="accordionExample">
+            <div>
+                <h1>PENDING ORDERS</h1>
+            </div>
+            @if (Model.PendingOrders.Count() > 0)
+            {
+                @foreach (var item in Model.PendingOrders)
+                {
+                    <div class="card">
+                        <div class="card-header justify-content-between" id="heading-@item.Id">
+                            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse-@item.Id" aria-expanded="true" aria-controls="collapse-@item.Id">
+                                @item.Date
+                            </button>
+                        </div>
+
+                        <div id="collapse-@item.Id" class="collapse show" aria-labelledby="heading-@item.Id" data-parent="#accordionExample">
+                            <div class="card-body" >
+                                <input class="order-id" type="hidden" value="@item.Id"/>
+                                <button class="approve-order btn btn-warning font-weight-bold text-white float-right">APPROVE ORDER</button>
+                                <div>
+                                    <h4>Recipient Details</h4>
+                                    <p>Email Address: @item.Profile.EmailAddress</p>
+                                    <p>Contact Number: @item.Profile.PhoneNumber</p>
+                                    <p>Delivery Address: @item.Profile.Address</p>
+                                </div>
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">
+                                                Product
+                                            </th>
+                                            <th class="text-center">
+                                                Description
+                                            </th>
+                                            <th class="text-center">
+                                                Price
+                                            </th>
+                                            <th class="text-center">
+                                                Unit
+                                            </th>
+                                            <th class="text-center">
+                                                Total
+                                            </th>
+                                            <th class="text-center">
+                                                Status
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var i in item.ProductOrders)
+                                        {
+                                            <tr>
+                                                <td style="width: 20%;" class="text-center">
+                                                    <img src="@Url.Content(i.Image)" class="rounded mx-auto d-block img-fluid" alt="...">
+                                                </td>
+                                                <td style="width: 16%;" class="align-middle text-left">
+                                                    <strong>@i.Name</strong>
+                                                    <p>@i.Description</p>
+                                                </td>
+                                                <td style="width: 16%;" class="align-middle text-center">
+                                                    PHP @(i.Price.ToString("0.00"))
+                                                </td>
+                                                <td style="width: 16%;" class="align-middle text-center">
+                                                    @i.Quantity
+                                                </td>
+                                                <td style="width: 16%;" class="align-middle text-center">
+                                                    PHP <span class="total_price">@i.TotalPrice.ToString("0.00")</span>
+                                                </td>
+                                                <td style="width: 16%;" class="align-middle text-center">
+                                                    @i.Status
+                                                </td>
+                                            </tr>
+                                        }
+                                        <tr>
+                                            <td style="width: 20%;" class="text-center">
+                                            </td>
+                                            <td style="width: 16%;" class="align-middle text-left">
+                                            </td>
+                                            <td style="width: 16%;" class="align-middle text-center">
+                                            </td>
+                                            <td style="width: 16%;" class="align-middle text-center">
+                                            </td>
+                                            <td style="width: 16%;" class="align-middle text-center">
+                                                TOTAL
+                                            </td>
+                                            <td style="width: 16%;" class="align-middle text-center">
+                                                PHP @item.Total.ToString("0.00")
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+            }
+        </div>
+    </div>
+
+    <!-- SHIPPED -->
+
+    <div class="p-2 m-3">
+        <div class="accordion" id="accordionExample">
+            <div>
+                <h1>SHIPPED ORDERS</h1>
+            </div>
+            @if (Model.ShippedOrders.Count() > 0)
+            {
+                @foreach (var item in Model.ShippedOrders)
+                {
+                    <div class="card">
+                        <div class="card-header justify-content-between" id="heading-@item.Id">
+                            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse-@item.Id" aria-expanded="true" aria-controls="collapse-@item.Id">
+                                @item.Date
+                            </button>
+                        </div>
+
+                        <div id="collapse-@item.Id" class="collapse show" aria-labelledby="heading-@item.Id" data-parent="#accordionExample">
+                            <div class="card-body">
+                                <input class="order-id" type="hidden" value="@item.Id"/>
+                                <button class="confirm-delivery btn btn-info font-weight-bold text-white float-right">CONFIRM DELIVERY</button>
+                                <div>
+                                    <h4>Recipient Details</h4>
+                                    <p>Email Address: @item.Profile.EmailAddress</p>
+                                    <p>Contact Number: @item.Profile.PhoneNumber</p>
+                                    <p>Delivery Address: @item.Profile.Address</p>
+                                </div>
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">
+                                                Product
+                                            </th>
+                                            <th class="text-center">
+                                                Description
+                                            </th>
+                                            <th class="text-center">
+                                                Price
+                                            </th>
+                                            <th class="text-center">
+                                                Unit
+                                            </th>
+                                            <th class="text-center">
+                                                Total
+                                            </th>
+                                            <th class="text-center">
+                                                Status
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var i in item.ProductOrders)
+                                        {
+                                            <tr>
+                                                <td style="width: 20%;" class="text-center">
+                                                    <img src="@Url.Content(i.Image)" class="rounded mx-auto d-block img-fluid" alt="...">
+                                                </td>
+                                                <td style="width: 16%;" class="align-middle text-left">
+                                                    <strong>@i.Name</strong>
+                                                    <p>@i.Description</p>
+                                                </td>
+                                                <td style="width: 16%;" class="align-middle text-center">
+                                                    PHP @(i.Price.ToString("0.00"))
+                                                </td>
+                                                <td style="width: 16%;" class="align-middle text-center">
+                                                    @i.Quantity
+                                                </td>
+                                                <td style="width: 16%;" class="align-middle text-center">
+                                                    PHP <span class="total_price">@i.TotalPrice.ToString("0.00")</span>
+                                                </td>
+                                                <td style="width: 16%;" class="align-middle text-center">
+                                                    @i.Status
+                                                </td>
+                                            </tr>
+                                        }
+                                        <tr>
+                                            <td style="width: 20%;" class="text-center">
+                                            </td>
+                                            <td style="width: 16%;" class="align-middle text-left">
+                                            </td>
+                                            <td style="width: 16%;" class="align-middle text-center">
+                                            </td>
+                                            <td style="width: 16%;" class="align-middle text-center">
+                                            </td>
+                                            <td style="width: 16%;" class="align-middle text-center">
+                                                TOTAL
+                                            </td>
+                                            <td style="width: 16%;" class="align-middle text-center">
+                                                PHP @item.Total.ToString("0.00")
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+            }
+        </div>
+    </div>
+
+
+    <!-- DELIVERED -->
+
+    <div class="p-2 m-3">
+        <div class="accordion" id="accordionExample">
+            <div>
+                <h1>DELIVERED ORDERS</h1>
+            </div>
+            @if (Model.DeliveredOrders.Count() > 0)
+            {
+                @foreach (var item in Model.DeliveredOrders)
+                {
+                    <div class="card">
+                        <div class="card-header justify-content-between" id="heading-@item.Id">
+                            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse-@item.Id" aria-expanded="true" aria-controls="collapse-@item.Id">
+                                @item.Date
+                            </button>
+                            <button class="btn btn-success font-weight-bold text-white float-right">DELIVERED</button>
+                        </div>
+
+                        <div id="collapse-@item.Id" class="collapse show" aria-labelledby="heading-@item.Id" data-parent="#accordionExample">
+                            <div class="card-body">
+                                <div>
+                                    <h4>Recipient Details</h4>
+                                    <p>Email Address: @item.Profile.EmailAddress</p>
+                                    <p>Contact Number: @item.Profile.PhoneNumber</p>
+                                    <p>Delivery Address: @item.Profile.Address</p>
+                                </div>
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">
+                                                Product
+                                            </th>
+                                            <th class="text-center">
+                                                Description
+                                            </th>
+                                            <th class="text-center">
+                                                Price
+                                            </th>
+                                            <th class="text-center">
+                                                Unit
+                                            </th>
+                                            <th class="text-center">
+                                                Total
+                                            </th>
+                                            <th class="text-center">
+                                                Status
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var i in item.ProductOrders)
+                                        {
+                                            <tr>
+                                                <td style="width: 20%;" class="text-center">
+                                                    <img src="@Url.Content(i.Image)" class="rounded mx-auto d-block img-fluid" alt="...">
+                                                </td>
+                                                <td style="width: 16%;" class="align-middle text-left">
+                                                    <strong>@i.Name</strong>
+                                                    <p>@i.Description</p>
+                                                </td>
+                                                <td style="width: 16%;" class="align-middle text-center">
+                                                    PHP @(i.Price.ToString("0.00"))
+                                                </td>
+                                                <td style="width: 16%;" class="align-middle text-center">
+                                                    @i.Quantity
+                                                </td>
+                                                <td style="width: 16%;" class="align-middle text-center">
+                                                    PHP <span class="total_price">@i.TotalPrice.ToString("0.00")</span>
+                                                </td>
+                                                <td style="width: 16%;" class="align-middle text-center">
+                                                    @i.Status
+                                                </td>
+                                            </tr>
+                                        }
+                                        <tr>
+                                            <td style="width: 20%;" class="text-center">
+                                            </td>
+                                            <td style="width: 16%;" class="align-middle text-left">
+                                            </td>
+                                            <td style="width: 16%;" class="align-middle text-center">
+                                            </td>
+                                            <td style="width: 16%;" class="align-middle text-center">
+                                            </td>
+                                            <td style="width: 16%;" class="align-middle text-center">
+                                                TOTAL
+                                            </td>
+                                            <td style="width: 16%;" class="align-middle text-center">
+                                                PHP @item.Total.ToString("0.00")
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+            }
+        </div>
+    </div>
+
+</div>
+
+
+@section Scripts {
+    <script>
+        $(function () {
+            $('.approve-order').on('click', function () {
+                let orderId = $(this).parent().find('.order-id').val();
+                $.ajax({
+                    type: 'POST',
+                    url: "/Admin/ApproveOrder",
+                    data: { "orderId": orderId, },
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.success) {
+                            window.location = "/Admin/ManageOrder"
+                        }
+                    }
+                });
+            });
+            
+            $('.confirm-delivery').on('click', function () {
+                let orderId = $(this).parent().find('.order-id').val();
+                $.ajax({
+                    type: 'POST',
+                    url: "/Admin/ConfirmDelivery",
+                    data: { "orderId": orderId, },
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.success) {
+                            window.location = "/Admin/ManageOrder"
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+}

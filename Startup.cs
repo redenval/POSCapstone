@@ -102,6 +102,14 @@ namespace Capstone
                     name: "OrderProcess",
                     pattern: "/OrderBeingProcess",
                     defaults: new { controller = "Home", action = "OrderBeingProcess" });
+                endpoints.MapControllerRoute(
+                    name: "Profile",
+                    pattern: "/Profile",
+                    defaults: new { controller = "Home", action = "Profile" });
+                endpoints.MapControllerRoute(
+                    name: "About",
+                    pattern: "/About",
+                    defaults: new { controller = "Home", action = "About" });
             });
         }
     }

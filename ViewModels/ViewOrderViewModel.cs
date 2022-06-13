@@ -14,8 +14,9 @@ namespace Capstone.ViewModels
     public class OrderViewModel
     {
         public int Id { get; set; }
-        public int Count { get; set; }
+        public ProfileViewModel Profile { get; set; }
         public string Date { get; set; }
+        public double Total { get; set; }
         public IEnumerable<ProductOrderViewModel> ProductOrders { get; set; }
 
     }

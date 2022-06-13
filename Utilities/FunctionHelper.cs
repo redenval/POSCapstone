@@ -7,6 +7,13 @@ namespace Capstone.Utilities
 {
     public static class FunctionHelper
     {
+        public static List<string> GetRoleList()
+        {
+            List<string> RoleList = new List<string>();
+            RoleList.Add("Default");
+            RoleList.Add("Admin");
+            return RoleList;
+        }
         public static List<string> GetBarangayList()
         {
             List<string> BarangayList = new List<string>();
