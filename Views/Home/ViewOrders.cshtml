@@ -1,0 +1,117 @@
+﻿@model Capstone.ViewModels.ViewOrderViewModel
+
+@{
+}
+<style>
+    h1 {
+        font-size: 3rem;
+        font-weight: bold;
+    }
+</style>
+
+<div class="container">
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <div>
+        <h1>MY ORDERS</h1>
+    </div>
+    <div>
+        <div class="accordion" id="accordionExample">
+            @if (Model.Orders.Count() > 0)
+            {
+                @foreach (var item in Model.Orders)
+                {
+                    <div class="card">
+                        <div class="card-header" id="heading-@item.Id">
+                            <h2 class="mb-0">
+                                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse-@item.Id" aria-expanded="true" aria-controls="collapse-@item.Id">
+                                    @item.Date
+                                </button>
+                            </h2>
+                        </div>
+
+                        <div id="collapse-@item.Id" class="collapse show" aria-labelledby="heading-@item.Id" data-parent="#accordionExample">
+                            <div class="card-body">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">
+                                                Product
+                                            </th>
+                                            <th class="text-center">
+                                                Description
+                                            </th>
+                                            <th class="text-center">
+                                                Price
+                                            </th>
+                                            <th class="text-center">
+                                                Unit
+                                            </th>
+                                            <th class="text-center">
+                                                Total
+                                            </th>
+                                            <th class="text-center">
+                                                Status
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var i in item.ProductOrders)
+                                        {
+                                            <tr>
+                                                <td style="width: 20%;" class="text-center">
+                                                    <img src="@Url.Content(i.Image)" class="rounded mx-auto d-block img-fluid" alt="...">
+                                                </td>
+                                                <td style="width: 16%;" class="align-middle text-left">
+                                                    <strong>@i.Name</strong>
+                                                    <p>@i.Description</p>
+                                                </td>
+                                                <td style="width: 16%;" class="align-middle text-center">
+                                                    PHP @(i.Price.ToString("0.00"))
+                                                </td>
+                                                <td style="width: 16%;" class="align-middle text-center">
+                                                    @i.Quantity
+                                                </td>
+                                                <td style="width: 16%;" class="align-middle text-center">
+                                                    PHP <span class="total_price">@i.TotalPrice.ToString("0.00")</span>
+                                                </td>
+                                                <td style="width: 16%;" class="align-middle text-center">
+                                                    @i.Status
+                                                </td>
+                                            </tr>
+                                        }
+                                    <tr>
+                                        <td style="width: 20%;" class="text-center">
+                                        </td>
+                                        <td style="width: 16%;" class="align-middle text-left">
+                                        </td>
+                                        <td style="width: 16%;" class="align-middle text-center">
+                                        </td>
+                                        <td style="width: 16%;" class="align-middle text-center">
+                                        </td>
+                                        <td style="width: 16%;" class="align-middle text-center">
+                                            TOTAL
+                                        </td>
+                                        <td style="width: 16%;" class="align-middle text-center">
+                                            PHP @item.Total.ToString("0.00")
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+            }
+            else
+            {
+                <div><p>No Past Transactions... <a href="/Store">GO SHOPPING?</a></p></div>
+            }
+        </div>
+    </div>
+
+</div>

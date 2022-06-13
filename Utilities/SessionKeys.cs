@@ -12,8 +12,15 @@ namespace Capstone.Utilities
         public const string OrderStatusApproved = "Approved";
         public const string OrderStatusDelivered = "Delivered";
 
-        public const string UserAccess = "UserAccess";
-        public const string UserAccessAdmin = "Admin";
-        public const string UserAccessDefault = "Default";
+        public const string UserAccessStatus = "UserAccessStatus";
+        public const string UserAccessStatusLoggedIn = "LoggedIn";
+        public const string UserAccessStatusLoggedOut = "LoggedOut";
+
+        public const string UserAccessRole = "UserAccessRole";
+        public const string UserAccessRoleAdmin = "Admin";
+        public const string UserAccessRoleDefault = "Default";
+
+        //Data
+        public const string User = "User";
     }
 }

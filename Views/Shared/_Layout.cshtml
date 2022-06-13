@@ -1,8 +1,10 @@
 ﻿@inject Capstone.Services.IServices.ISessionService _sessionService
-@using Capstone.Utilities; 
+@using Capstone.Utilities;
 
-@{ 
-    var userAccess = _sessionService.GetItems(SessionKeys.UserAccess, ViewContext.HttpContext) ?? SessionKeys.UserAccessDefault;
+@{
+    var userAccessStatus = _sessionService.GetItems(SessionKeys.UserAccessStatus, ViewContext.HttpContext) ?? SessionKeys.UserAccessStatusLoggedOut;
+    string user = _sessionService.GetItems(SessionKeys.User, ViewContext.HttpContext) ?? "None";
+    string role = _sessionService.GetItems(SessionKeys.UserAccessRole, ViewContext.HttpContext) ?? "Default";
 }
 
 <!DOCTYPE html>
@@ -10,20 +12,118 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Capstone</title>
+    <title>@ViewData["Title"]</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
     <style>
+        .badge {
+            padding-left: 9px;
+            padding-right: 9px;
+            -webkit-border-radius: 9px;
+            -moz-border-radius: 9px;
+            border-radius: 9px;
+            text-align: center;
+            align-content: center;
+        }
+
+        .label-warning[href],
+        .badge-warning[href] {
+            background-color: #c67605;
+        }
+
+        .quantity {
+            border: 0;
+        }
+
+        .btn-dark {
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            padding: 0;
+            // changed font-size: 12px;
+            line-height: 1.428571429;
+            border-radius: 15px;
+        }
+
+        #lblCartCount {
+            font-size: 12px;
+            background: #ff0000;
+            color: #fff;
+            padding: 0 5px;
+            vertical-align: top;
+            margin-left: -10px;
+        }
+
+        body, body * {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .total_cart_items {
+            background-color: coral;
+            font-weight: bold;
+            border-radius: 40px;
+            font-size: 20px;
+            text-align: center;
+            color: white;
+        }
+
         .hidden {
-            display:none;
+            display: none;
+        }
+
+        .success-button {
+            border: none;
+            background: none;
+        }
+
+        .toast-container, .toast {
+            z-index: 9998;
+            font-size: large;
+            opacity: 1 !important;
+        }
+
+        .toast-message {
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
+    @if (ViewBag.RegisterSuccess == true)
+    {
+        <div class="alert alert-success alert-dismissible fade show text-center" id="success-alert">
+            <strong>Success!</strong> Your account has been registered successfully!
+            <button type="button" class="btn-close success-button close" data-dismiss="alert">
+                <i class="fa fa-window-close"></i>
+            </button>
+        </div>
+    }
+    @if (ViewBag.LoginSuccess == true)
+    {
+        <div class="alert alert-success alert-dismissible fade show text-center" id="success-alert">
+            <strong>Success!</strong> Your account has been logged in successfully!
+            <button type="button" class="btn-close success-button close" data-dismiss="alert">
+                <i class="fa fa-window-close"></i>
+            </button>
+        </div>
+    }
+    @if (ViewBag.LogoutSuccess == true)
+    {
+        <div class="alert alert-success alert-dismissible fade show text-center" id="success-alert">
+            <strong>Success!</strong> Your account has been logged out successfully!
+            <button type="button" class="btn-close success-button close" data-dismiss="alert">
+                <i class="fa fa-window-close"></i>
+            </button>
+        </div>
+    }
+
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar fixed-top navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Capstone</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Heidi's Water</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -31,40 +131,129 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-dark" href="/About">ABOUT</a>
                         </li>
-                        @if (userAccess.Equals(SessionKeys.UserAccessAdmin))
-                        {
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" href="/Store">STORE</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" href="/Cart">
+                                MY CART
+                                <i class="fa" style="font-size:17px">&#xf07a;</i>
+                                <span class='badge badge-warning' id='lblCartCount'> 0 </span>
+                            </a>
+                        </li>
+                    </ul>
+
+                    @if (userAccessStatus.Equals(SessionKeys.UserAccessStatusLoggedIn))
+                    {
+                        <ul class="navbar-nav">
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="Index">Dashboard</a>
+                                <a class="nav-link text-dark" href="/Profile">@user</a>
                             </li>
-                        }
-                    </ul>
-                    <ul>
-                        @if (userAccess.Equals(SessionKeys.UserAccessAdmin))
-                        {
-                            <a class="nav-link text-dark justify-content-end" asp-area="" asp-controller="Admin" asp-action="Logout">Logout</a>
-                        }
-                    </ul>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="/ViewOrders">VIEW ORDERS</a>
+                            </li>
+                            @if (role.Equals(SessionKeys.UserAccessRoleAdmin))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="/Admin">DASHBOARD</a>
+                                </li>
+                            }
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="/Home/Logout">LOGOUT</a>
+                            </li>
+                        </ul>
+                    }
+                    else
+                    {
+                        <ul class="navbar-nav">
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="/Login">LOGIN</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark">OR</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="/Register">REGISTER</a>
+                            </li>
+                        </ul>
+                    }
                 </div>
             </div>
         </nav>
+
+
+
+        <div style="position: relative;">
+            <div class="toast-container m-5 pt-5 position-fixed" style="position: fixed; top: 0; right: 0;">
+            </div>
+        </div>
+
     </header>
     <div class="container">
-        <main role="main" class="pb-3">
+        <main role="main" class="pb-3" id="main-container">
             @RenderBody()
         </main>
     </div>
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2022 - Capstone - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2022 - Heidi's Water - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.js"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        function updateCartCount(count) {
+            let oldCount = parseInt($('#lblCartCount').html().replace(' ', ''));
+            $('#lblCartCount').html(' ' + count + ' ');
+
+            if (oldCount != count) {
+                $('#lblCartCount').animate({ width: '+27px', height: '+13px' }, 200);
+                $('#lblCartCount').animate({ width: '+23px', height: '+12px' }, 200);
+            }
+        }
+
+        let refTotalCartItem = 0;
+
+        $(document).ready(function () {
+
+            $.ajax({
+                type: 'POST',
+                url: "/Home/GetTotalCartItem",
+                dataType: "json",
+                success: function (response) {
+                    if (response.success) {
+                        updateCartCount(parseInt(response.total));
+                    }
+                }
+            });
+
+
+            $("#success-alert").fadeTo(2000, 500).slideUp(500, function () {
+                $("#success-alert").slideUp(500);
+            });
+
+            clearInterval(refTotalCartItem);
+
+            refTotalCartItem = setInterval(function () {
+                $.ajax({
+                    type: 'POST',
+                    url: "/Home/GetTotalCartItem",
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.success) {
+                            updateCartCount(parseInt(response.total));
+                        }
+                    }
+                });
+            }, 2500);
+
+        });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

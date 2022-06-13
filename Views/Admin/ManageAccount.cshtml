@@ -1,0 +1,230 @@
+﻿@model Capstone.ViewModels.UserViewModel
+@using Capstone.ViewModels
+
+@{
+    ViewData["Title"] = "Register";
+    List<UserViewModel> ListOfUsers = ViewBag.ListOfUsers;
+}
+<style>
+    .register-form {
+    }
+
+    .error-text {
+        color: #ff0000;
+    }
+
+    .validation-summary-errors li {
+        color: #ff0000;
+    }
+</style>
+<div class="container">
+    <div class="register-form container-fluid p-5 mx-auto my-5 justify-content-center">
+        @using (Html.BeginForm("CreateOrUpdate", "Admin", FormMethod.Post))
+        {
+            <h1 class="">Manage Account</h1>
+            <br />
+            <div class="row">
+                @Html.HiddenFor(m => m.Id)
+                <div class="col-md-6">
+                    <div class="row form-group">
+                        <div class="col-md-3">
+                            @Html.LabelFor(m => m.Email)
+                        </div>
+                        <div class="row col-md-9">
+                            @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(m => m.Email, "", new { @class = "error-text" })
+                        </div>
+                    </div>
+
+                    <div class="row form-group">
+                        <div class="col-md-3">
+                            @Html.LabelFor(m => m.Password)
+                        </div>
+                        <div class="row col-md-9">
+                            @Html.TextBoxFor(m => m.Password, new { @class = "form-control", type = "password" })
+                            @Html.ValidationMessageFor(m => m.Password, "", new { @class = "error-text" })
+                        </div>
+                    </div>
+
+                    <div class="row form-group">
+                        <div class="col-md-3">
+                            @Html.LabelFor(m => m.Phone)
+                        </div>
+                        <div class="row col-md-9">
+                            @Html.TextBoxFor(m => m.Phone, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(m => m.Phone, "", new { @class = "error-text" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="row form-group">
+                        <div class="col-md-3">
+                            @Html.LabelFor(m => m.StreetAddress)
+                        </div>
+                        <div class="row col-md-9">
+                            @Html.TextBoxFor(m => m.StreetAddress, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(m => m.StreetAddress, "", new { @class = "error-text" })
+                        </div>
+                    </div>
+
+                    <div class="row form-group">
+                        <div class="col-md-3">
+                            <label for="Street">Barangay</label>
+                        </div>
+                        <div class="row col-md-9">
+                            <select asp-for="@Model.Barangay" asp-items="ViewBag.BarangayList" class="form-control"></select>
+                        </div>
+                    </div>
+
+                    <div class="row form-group">
+                        <div class="col-md-3">
+                            <label for="Street">Role</label>
+                        </div>
+                        <div class="row col-md-9">
+                            <select asp-for="@Model.Role" asp-items="ViewBag.RoleList" class="form-control"></select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary px-5">CREATE OR UPDATE</button>
+            <br />
+            <br />
+            <br />
+            <br />
+        }
+
+        <div class="row">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="text-center">
+                            ID
+                        </th>
+                        <th class="text-center">
+                            Role
+                        </th>
+                        <th class="text-center">
+                            Email Address
+                        </th>
+                        <th class="text-center">
+                            Phone Number
+                        </th>
+                        <th class="text-center">
+                            Address
+                        </th>
+                        <th class="text-center">
+                            Action
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in ListOfUsers)
+                    {
+                        <tr>
+                            <td style="width: 6%;" class="text-center">
+                                @item.Id
+                            </td>
+                            <td style="width: 8%;" class="align-middle text-center">
+                                @item.Role
+                            </td>
+                            <td style="width: 15%;" class="align-middle text-center">
+                                @item.Email
+                            </td>
+                            <td style="width: 15%;" class="align-middle text-center">
+                                @item.Phone
+                            </td>
+                            <td style="width: 24%;" class="align-middle text-center">
+                                @($"{item.StreetAddress} {item.Barangay}")
+                            </td>
+                            <td style="width: 32%;" class="align-middle text-center">
+                                <input type="hidden" class="user-id" name="name" value="@item.Id" />
+                                <input type="hidden" class="user-role" name="name" value="@item.Role" />
+                                <input type="hidden" class="user-email" name="name" value="@item.Email" />
+                                <input type="hidden" class="user-phone" name="name" value="@item.Phone" />
+                                <input type="hidden" class="user-password" name="name" value="@item.Password" />
+                                <input type="hidden" class="user-street" name="name" value="@item.StreetAddress" />
+                                <input type="hidden" class="user-barangay" name="name" value="@item.Barangay" />
+                                @if (!item.Email.Equals(ViewBag.Email))
+                                {
+                                    <button class="edit-user btn btn-success" type="submit"><small>EDIT</small></button>
+                                    <button class="remove-user btn btn-danger" type="submit"><small>REMOVE</small></button>
+                                }
+                            </td>
+                        </tr>
+
+                    }
+                </tbody>
+            </table>
+
+        </div>
+
+    </div>
+</div>
+
+@section Scripts
+{
+    <script>
+        function show_toast(msg) {
+            let toastBodyStart = $('<div class="toast-body"></div>').append(msg);
+            let toastStart = $('<div class="toast" data-autohide="true" data-delay="3000"></div>').append(toastBodyStart);
+            $('.toast-container').append(toastStart);
+            $(toastStart).on('hidden.bs.toast', function () {
+                $(toastStart).remove();
+                console.log('toast hidden');
+            });
+            $(toastStart).toast('show');
+        }
+
+        $(function () {
+            $('.edit-user').on('click', function () {
+                let id = $(this).parent().find('.user-id').val();
+                let role = $(this).parent().find('.user-role').val();
+                let email = $(this).parent().find('.user-email').val();
+                let password = $(this).parent().find('.user-password').val();
+                let phone = $(this).parent().find('.user-phone').val();
+                let street = $(this).parent().find('.user-street').val();
+                let barangay = $(this).parent().find('.user-barangay').val();
+                console.log(id);
+                $('#Id').val(id);
+                $('#Role').val(role);
+                $('#Email').val(email);
+                $('#Phone').val(phone.replaceAll(' ', ''));
+                $('#Password').val(password);
+                $('#StreetAddress').val(street);
+                $.ajax({
+                    type: 'post',
+                    url: "/admin/getbarangay",
+                    data: { "barangay": barangay, "role": role },
+                    datatype: "json",
+                    success: function (response) {
+                        if (response.success) {
+                            $('#Barangay').val(response.barangay).change();
+                            $('#Role').val(response.role).change();
+                        }
+                    }
+                });
+            });
+            $('.remove-user').on('click', function () {
+                let parent = $($(this).parent()).parent();
+                let id = $(this).parent().find('input').val();
+                $(this).attr('disabled', true);
+                $.ajax({
+                    type: 'post',
+                    url: "/admin/removeuser",
+                    data: { "id": id, },
+                    datatype: "json",
+                    success: function (response) {
+                        if (response.success) {
+                            $(parent).fadeOut(300, function () {
+                                $(this).remove();
+                                show_toast("User removed successfully!");
+                            });
+                        }
+                    }
+                });
+            });
+
+        });
+    </script>
+}

@@ -1,194 +1,136 @@
-﻿using Capstone.Repository.IRepository;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Capstone.Utilities;
 using Capstone.Services.IServices;
-using Capstone.Models;
+using Capstone.Repository.IRepository;
+using Capstone.Utilities;
+using Capstone.ViewModels;
+using Capstone.ActionFilters;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Capstone.Controllers
 {
     public class AdminController : Controller
     {
-        private readonly IAdminRepository _adminRepository;
-        private readonly ISessionService _sessionService;
 
-        public AdminController(IAdminRepository adminRepository, ISessionService sessionService)
+        private readonly ISessionService _sessionService;
+        private readonly IUserRepository _userRepository;
+        private readonly IProductRepository _productRepository;
+
+        public AdminController(ISessionService sessionService, IUserRepository userRepository, IProductRepository productRepository)
         {
-            _adminRepository = adminRepository;
             _sessionService = sessionService;
+            _userRepository = userRepository;
+            _productRepository = productRepository;
         }
 
         public IActionResult Index()
         {
-            var userAccess = _sessionService.GetItems(SessionKeys.UserAccess, HttpContext) ?? SessionKeys.UserAccessDefault;
-
-            if (userAccess.Equals(SessionKeys.UserAccessDefault))
+            if(_sessionService.GetItems(SessionKeys.UserAccessStatus, HttpContext).Equals(SessionKeys.UserAccessStatusLoggedIn) && _sessionService.GetItems(SessionKeys.UserAccessRole, HttpContext).Equals(SessionKeys.UserAccessRoleAdmin))
             {
-                return View("Login");
+                return View();
+            }
+            else if(_sessionService.GetItems(SessionKeys.UserAccessStatus, HttpContext).Equals(SessionKeys.UserAccessStatusLoggedOut))
+            {
+                return Redirect("/Login");
             }
             else
             {
-                return View("Index");
+                return Redirect("/");
             }
         }
 
-        public IActionResult Login(string email, string pass)
+        public IActionResult ManageSales()
         {
-            var userAccess = _sessionService.GetItems(SessionKeys.UserAccess, HttpContext) ?? SessionKeys.UserAccessDefault;
-
-            if (userAccess.Equals(SessionKeys.UserAccessAdmin))
-                return View("Index");
-
-            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(pass))
-                return View("Login");
-
-            if (_adminRepository.CheckAdminCredentials(email.Trim(), pass.Trim()))
-            {
-                _sessionService.SetItems(SessionKeys.UserAccess, SessionKeys.UserAccessAdmin, HttpContext);
-                return View("Index");
-            }
-            else
-                return View("Login");
+            return View("ManageSales", _productRepository.GetAllUserOrders());
         }
 
-        public IActionResult Logout()
+        public IActionResult ManageOrder()
         {
-            var userAccess = _sessionService.GetItems(SessionKeys.UserAccess, HttpContext) ?? SessionKeys.UserAccessDefault;
-            if (userAccess.Equals(SessionKeys.UserAccessAdmin))
-            {
-                _sessionService.SetItems(SessionKeys.UserAccess, SessionKeys.UserAccessDefault, HttpContext);
-            }
-            return RedirectToAction("Index", "Home");
+            return View("ManageOrder", _productRepository.GetAllUserOrders());
         }
 
-        #region Product
-        public IActionResult Product()
+        public IActionResult ApproveOrder(string orderId)
         {
-            var userAccess = _sessionService.GetItems(SessionKeys.UserAccess, HttpContext) ?? SessionKeys.UserAccessDefault;
+            _productRepository.ApproveOrder(orderId);
+            return Json(new { Success = true});
+        }
+        public IActionResult ConfirmDelivery(string orderId)
+        {
+            _productRepository.ConfirmOrder(orderId);
+            return Json(new { Success = true});
+        }
 
-            if(userAccess.Equals(SessionKeys.UserAccessAdmin))
+        [ImportModelState]
+        public IActionResult ManageAccount()
+        {
+            if(_sessionService.GetItems(SessionKeys.UserAccessStatus, HttpContext).Equals(SessionKeys.UserAccessStatusLoggedIn) && _sessionService.GetItems(SessionKeys.UserAccessRole, HttpContext).Equals(SessionKeys.UserAccessRoleAdmin))
             {
-                return View("Product");
+                ViewBag.BarangayList = FunctionHelper.GetBarangayList().Select((value, index) => new { value, index }).Select(x => new SelectListItem() { Value = x.index.ToString(), Text = x.value });
+                ViewBag.RoleList = FunctionHelper.GetRoleList().Select((value, index) => new { value, index }).Select(x => new SelectListItem() { Value = x.index.ToString(), Text = x.value });
+                ViewBag.ListOfUsers = _userRepository.GetAllUsers();
+                ViewBag.Email = _sessionService.GetItems(SessionKeys.User, HttpContext); 
+                return View();
+            }
+            else if(_sessionService.GetItems(SessionKeys.UserAccessStatus, HttpContext).Equals(SessionKeys.UserAccessStatusLoggedOut))
+            {
+                return Redirect("/Login");
             }
             else
             {
-                return View("Login");
+                return Redirect("/");
             }
         }
-        #endregion
 
-
-        #region Account
-        public IActionResult Account()
+        [ExportModelState]
+        public IActionResult CreateOrUpdate(UserViewModel user)
         {
-            var userAccess = _sessionService.GetItems(SessionKeys.UserAccess, HttpContext) ?? SessionKeys.UserAccessDefault;
-            if (userAccess.Equals(SessionKeys.UserAccessAdmin))
+            ModelState.Remove("Id");
+            if (user.Email.Equals("admin@admin.com"))
             {
-                return View("Account");
+                ModelState.AddModelError("Email", "Cannot update admin email address");
             }
-            return RedirectToAction("Index", "Home");
+
+            if (!ModelState.IsValid)
+            {
+                ViewBag.BarangayList = FunctionHelper.GetBarangayList().Select((value, index) => new { value, index }).Select(x => new SelectListItem() { Value = x.index.ToString(), Text = x.value });
+                return Redirect("/Admin/ManageAccount");
+            }
+
+            var phoneNumberUtil = PhoneNumbers.PhoneNumberUtil.GetInstance();
+            string phoneNumber = user.Phone;
+
+            if (!string.IsNullOrEmpty(user.Phone))
+            {
+                var parsedPhoneNumber = phoneNumberUtil.Parse(user.Phone.Replace(" ", ""), "PH");
+                var formattedPhoneNumber = phoneNumberUtil.Format(parsedPhoneNumber, PhoneNumbers.PhoneNumberFormat.INTERNATIONAL);
+                bool isValidPhoneNumber = phoneNumberUtil.IsValidNumber(parsedPhoneNumber);
+
+                if (!isValidPhoneNumber)
+                {
+                    ModelState.AddModelError("Phone", "Please provide a valid phone number");
+                    ViewBag.BarangayList = FunctionHelper.GetBarangayList().Select((value, index) => new { value, index }).Select(x => new SelectListItem() { Value = x.index.ToString(), Text = x.value });
+                    return Redirect("/Admin/ManageAccount");
+                }
+                phoneNumber = formattedPhoneNumber;
+            }
+            _userRepository.CreateOrUpdate(new UserViewModel() { Id = user.Id, Email = user.Email, Password = user.Password, Role =  FunctionHelper.GetRoleList()[int.Parse(user.Role)], Barangay = FunctionHelper.GetBarangayList()[int.Parse(user.Barangay)], StreetAddress = user.StreetAddress, Phone = phoneNumber, Profile = user.Profile });
+            return Redirect("/Admin/ManageAccount");
         }
 
-        [HttpGet]
-        [Route("/Admin/Account/Add")]
-        public IActionResult AccountAdd(AccountViewModel model)
+        public IActionResult RemoveUser(string id)
         {
-            var userAccess = _sessionService.GetItems(SessionKeys.UserAccess, HttpContext) ?? SessionKeys.UserAccessDefault;
-            if (userAccess.Equals(SessionKeys.UserAccessAdmin))
-            {
-                _adminRepository.AddAccount(model);
-                return View("Account");
-            }
-
-            return RedirectToAction("Index", "Home");
+            return Json(new { Success = _userRepository.RemoveUser(id) });
         }
-
-        [HttpGet]
-        [Route("/Admin/Account/Edit")]
-        public IActionResult AccountEdit(AccountViewModel model)
+        public IActionResult GetBarangay(string barangay, string role)
         {
-            var userAccess = _sessionService.GetItems(SessionKeys.UserAccess, HttpContext) ?? SessionKeys.UserAccessDefault;
-            if (userAccess.Equals(SessionKeys.UserAccessAdmin))
-            {
-                _adminRepository.EditAccount(model);
-                return View("Account");
-            }
-
-            return RedirectToAction("Index", "Home");
+            var b = FunctionHelper.GetBarangayList().Select((value, index) => new { value, index }).Where(x=> x.value == barangay).FirstOrDefault();
+            var r = FunctionHelper.GetRoleList().Select((value, index) => new { value, index }).Where(x=> x.value == role).FirstOrDefault();
+            return Json(new { Success = true, Barangay = b.index, Role = r.index });
         }
 
-        [HttpGet]
-        [Route("/Admin/Account/Delete/{id}", Name = "AccountDelete")]
-        public IActionResult AccountDelete(int id)
-        {
-            var userAccess = _sessionService.GetItems(SessionKeys.UserAccess, HttpContext) ?? SessionKeys.UserAccessDefault;
-            if (userAccess.Equals(SessionKeys.UserAccessAdmin))
-            {
-                _adminRepository.DeleteAccount(id);
-                return View("Account");
-            }
-
-            return RedirectToAction("Index", "Home");
-        }
-        #endregion
-
-
-        #region Inventory
-        public IActionResult Inventory()
-        {
-            var userAccess = _sessionService.GetItems(SessionKeys.UserAccess, HttpContext) ?? SessionKeys.UserAccessDefault;
-            if (userAccess.Equals(SessionKeys.UserAccessAdmin))
-            {
-                return View("Inventory");
-            }
-            return RedirectToAction("Index", "Home");
-        }
-
-        [HttpGet]
-        [Route("/Admin/Inventory/Add")]
-        public IActionResult InventoryAdd(ItemViewModel model)
-        {
-            var userAccess = _sessionService.GetItems(SessionKeys.UserAccess, HttpContext) ?? SessionKeys.UserAccessDefault;
-            if (userAccess.Equals(SessionKeys.UserAccessAdmin))
-            {
-                _adminRepository.AddInventoryItem(model);
-                return View("Inventory");
-            }
-
-            return RedirectToAction("Index", "Home");
-        }
-
-        [HttpGet]
-        [Route("/Admin/Inventory/Edit")]
-        public IActionResult InventoryEdit(ItemViewModel model)
-        {
-            var userAccess = _sessionService.GetItems(SessionKeys.UserAccess, HttpContext) ?? SessionKeys.UserAccessDefault;
-            if (userAccess.Equals(SessionKeys.UserAccessAdmin))
-            {
-                _adminRepository.EditInventoryItem(model);
-                return View("Inventory");
-            }
-
-            return RedirectToAction("Index", "Home");
-        }
-
-        [HttpGet]
-        [Route("/Admin/Inventory/Delete/{id}", Name = "InventoryDelete")]
-        public IActionResult InventoryDelete(int id)
-        {
-            var userAccess = _sessionService.GetItems(SessionKeys.UserAccess, HttpContext) ?? SessionKeys.UserAccessDefault;
-            if (userAccess.Equals(SessionKeys.UserAccessAdmin))
-            {
-                _adminRepository.DeleteInventoryItem(id);
-                return View("Inventory");
-            }
-
-            return RedirectToAction("Index", "Home");
-        }
-        #endregion
     }
 }

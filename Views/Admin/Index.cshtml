@@ -2,7 +2,12 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="container">
+ <div class="container">
+     <br />
+     <br />
+     <br />
+     <br />
+     <br />
     <div>
         <h1>Dashboard</h1>
     </div>
@@ -12,9 +17,9 @@
         <div class="col-6 my-2">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Customer Orders</h5>
-                    <p class="card-text">Customer Order handles all related orders from clients</p>
-                    <a href="#" class="btn btn-primary">Go To Customer Orders</a>
+                    <h5 class="card-title">Manage Accounts</h5>
+                    <p class="card-text">Module that handles creating, reading, editing, deleting accounts</p>
+                    <a href="/Admin/Manageaccount" class="btn btn-primary">Manage Accounts</a>
                 </div>
             </div>
         </div>
@@ -22,9 +27,9 @@
         <div class="col-6 my-2">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Product Management</h5>
-                    <p class="card-text">Product Management to create, edit and delete products for sales</p>
-                    <a asp-controller="Admin" asp-action="Product" class="btn btn-primary">Go To Product Management</a>
+                    <h5 class="card-title">Manage Orders</h5>
+                    <p class="card-text">Module that handles changing customer order status for delivery</p>
+                    <a href="/admin/ManageOrder" class="btn btn-primary">Manage Orders</a>
                 </div>
             </div>
         </div>
@@ -32,9 +37,9 @@
         <div class="col-6 my-2">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Customer Management</h5>
-                    <p class="card-text">Customer Management to create, edit and delete customer details to be used in orders</p>
-                    <a href="#" class="btn btn-primary">Go To Customer Management</a>
+                    <h5 class="card-title">Manage Inventory</h5>
+                    <p class="card-text">Module that handles creating, reading, editing, and deleting products in inventory</p>
+                    <a href="#" class="btn btn-primary">Manage Inventory</a>
                 </div>
             </div>
         </div>
@@ -42,29 +47,9 @@
         <div class="col-6 my-2">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Account Management</h5>
-                    <p class="card-text">Account Management to create, edit and delete accounts related to website access</p>
-                    <a asp-controller="Admin" asp-action="Account" class="btn btn-primary">Go To Account Management</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-6 my-2">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Inventory</h5>
-                    <p class="card-text">Inventory handles all records for items being sold</p>
-                    <a asp-controller="Admin" asp-action="Inventory" class="btn btn-primary">Go To Inventory</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-6 my-2">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Order History</h5>
-                    <p class="card-text">Shows All Order History from the Database</p>
-                    <a href="#" class="btn btn-primary">Go To Order History</a>
+                    <h5 class="card-title">Manage Sales</h5>
+                    <p class="card-text">Generate reports for various audits and logs</p>
+                    <a href="/admin/ManageSales" class="btn btn-primary">Manage Sales</a>
                 </div>
             </div>
         </div>

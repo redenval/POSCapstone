@@ -1,0 +1,104 @@
+﻿@model Capstone.ViewModels.StoreViewModel
+
+@{
+}
+
+<style>
+    h1 {
+        font-size: 4rem;
+        font-weight: bold;
+    }
+    .product-title > h4 {
+        height: 50px;
+        font-size: 18px;
+        font-weight: bolder;
+    }
+
+    .product-description {
+        height: 120px;
+    }
+</style>
+
+
+<div class="container">
+    <br />
+    <br />
+    <br />
+    <br />
+
+    <div class="header row p-5">
+        <div class="col-8">
+                <h1>HEIDI'S COLLECTION</h1>
+                <p>At heidi's we ensure that your water is purified and taste good.</p>
+        </div>
+        <div class="col-3 text-right">
+            <a href="/Cart">PROCEED TO CART</a>
+        </div>
+    </div>
+    <div class="row">
+        @foreach (var item in Model.Products)
+        {
+            <div class="product col-3 border-left border-right mt-5 mb-5 pt-5">
+                <div class="featured-img">
+                    <img class="img-fluid" src="@Url.Content(item.Image)" alt="FloWater Sierra">
+                    <br />
+                    <br />
+                    <div class="product-title">
+                        <h4>@item.Name.ToUpper()</h4>
+                    </div>
+                </div>
+                <div class="product-button mt-4 pb-5">
+                    <div class="product-description">
+                        <span>
+                            <p>@item.Description</p>
+                        </span>
+                    </div>
+                    <p><strong>PHP @item.Price.ToString("0.00")</strong></p>
+                    <div>
+                        <input type="hidden" name="id" value="@item.Id" />
+                        <button class="addtocart btn btn-info container-fluid" type="submit">ADD TO CART</button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+</div>
+
+
+@section Scripts {
+    <script>
+        function show_toast(item, msg)
+        {
+            let toastBodyStart = $('<div class="toast-body"></div>').append('<span class="toast-message">'+ item + '</span>' + msg);
+            let toastStart = $('<div class="toast" data-animation="true" data-autohide="true" data-delay="2500"></div>').append(toastBodyStart);
+            $('.toast-container').append(toastStart);
+            $(toastStart).on('hidden.bs.toast', function () {
+                $(toastStart).remove();
+            });
+            $(toastStart).toast('show');
+        }
+
+        $(function () {
+            $('.addtocart').on('click', function () {
+                var id = $(this).parent().children('input').val();
+                $.ajax({
+                    type: 'POST',
+                    url: "/Home/AddToCart",
+                    data: { "id": id, },
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.success) {
+                            show_toast(response.item," was successfully added to your cart!");
+                        }
+                        else {
+                            window.location = "/Login"
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+
+}
+

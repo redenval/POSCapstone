@@ -1,0 +1,253 @@
+﻿@model Capstone.ViewModels.CartViewModel
+
+@{
+    double totalPrice = 0;
+    for (int i = 0; i < Model.Cart.Count(); i++)
+    {
+        totalPrice += Model.Cart.ToList()[i].Price * Model.Cart.ToList()[i].Quantity;
+    }
+}
+
+<style>
+    h1 {
+        font-size: 4rem;
+        font-weight: bold;
+    }
+
+    img {
+        width: 150px;
+        height: 150px;
+    }
+
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        /* display: none; <- Crashes Chrome on hover */
+        -webkit-appearance: none;
+        margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+    }
+
+    input[type=number] {
+        -moz-appearance: textfield; /* Firefox */
+    }
+
+    .quantity {
+        pointer-events: none;
+        width: 25px;
+    }
+</style>
+
+<div class="container p-5">
+    <br />
+    <br />
+    <br />
+    <br />
+    <div class="row">
+        <div class="col-8">
+            <h1>MY CART</h1>
+        </div>
+        <div class="col-3 text-right">
+            <a href="/Store">CONTINUE SHOPPING</a>
+        </div>
+    </div>
+    <div class="row">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="text-center">
+                        Product
+                    </th>
+                    <th class="text-center">
+                        Description
+                    </th>
+                    <th class="text-center">
+                        Price
+                    </th>
+                    <th class="text-center">
+                        Unit
+                    </th>
+                    <th class="text-center">
+                        Total
+                    </th>
+                    <th class="text-center">
+                        Action
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Cart)
+                {
+                    <tr>
+                        <input type="hidden" class="item_id" name="name" value="@item.Id" />
+                        <td style="width: 20%;" class="text-center">
+                            <img src="@Url.Content(item.Image)" class="rounded mx-auto d-block img-fluid" alt="...">
+                        </td>
+                        <td style="width: 16%;" class="align-middle text-center">
+                            @item.Name
+                        </td>
+                        <td style="width: 16%;" class="align-middle text-center">
+                            PHP @(item.Price.ToString("0.00"))
+                        </td>
+                        <td style="width: 16%;" class="align-middle text-center">
+                            <button class="subtract-button btn btn-dark">-</button>
+                            <input class="quantity item_units unit text-center" type="number" name="quantity" value="@item.Quantity" />
+                            <input class="price" type="hidden" name="price" value="@item.Price" />
+                            <button class="add-button btn btn-dark">+</button>
+                        </td>
+                        <td style="width: 16%;" class="align-middle text-center">
+                            PHP <span class="total_price">@((item.Price * item.Quantity).ToString("0.00"))</span>
+                        </td>
+                        <td style="width: 16%;" class="align-middle text-center">
+                            @using (Html.BeginForm())
+                            {
+                                <input type="hidden" name="id" value="@item.Id" />
+                                <button class="remove-item btn btn-danger" type="submit">REMOVE</button>
+                            }
+                        </td>
+                    </tr>
+                }
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <th>TOTAL</th>
+                    <th>PHP <span id="total_cart_price">@totalPrice.ToString("0.00")</span></th>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="row justify-content-end">
+        <button class="btn btn-info checkout_button">PROCEED CHECKOUT</button>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function show_toast(msg)
+        {
+            let toastBodyStart = $('<div class="toast-body"></div>').append(msg);
+            let toastStart = $('<div class="toast" data-autohide="true" data-delay="3000"></div>').append(toastBodyStart);
+            $('.toast-container').append(toastStart);
+            $(toastStart).on('hidden.bs.toast', function () {
+                $(toastStart).remove();
+                console.log('toast hidden');
+            });
+            $(toastStart).toast('show');
+        }
+
+        function updateTotalCartPrice() {
+            let price = 0;
+            let productList = $('.total_price');
+            for (var i = 0; i < productList.length; i++) {
+                price += parseFloat($(productList[i]).html());
+            }
+            $('#total_cart_price').html(price.toFixed(2));
+        }
+
+        $(function () {
+            $('.checkout_button').on('click', function () {
+                let productList = $('.total_price');
+                if (productList.length > 0) {
+                    $.ajax({
+                        type: 'POST',
+                        url: "/Home/CheckoutOrder",
+                        dataType: "json",
+                        success: function (response) {
+                            if (response.success) {
+                                console.log('Order successfully created!');
+                                window.location = "/OrderBeingProcess";
+                            }
+                            else {
+                                window.location = "/Login";
+                            }
+                        }
+                    });
+                }
+                else
+                {
+                    show_toast("Your cart is currently empty, add an item to continue!");
+                }
+            });
+
+            $('.add-button').on('click', function () {
+                let id = $($(this).parent()).parent().children('.item_id').val();
+                let unit = $(this).parent().children('.unit');
+                let price = $(this).parent().children('.price');
+                let total_price = $($(this).parent()).parent().find('span.total_price');
+                $.ajax({
+                    type: 'POST',
+                    url: "/Home/AddToCart",
+                    data: { "id": id, },
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.success) {
+                            let unit_value = parseInt($(unit).val());
+                            $(unit).val(unit_value + 1);
+                            $(total_price).html(((unit_value + 1) * parseFloat($(price).val())).toFixed(2));
+                            updateTotalCartPrice();
+                        }
+                        else {
+                            window.location = "/Login"
+                        }
+                    }
+                });
+
+            });
+
+            $('.subtract-button').on('click', function () {
+                let button = $(this);
+                let parent = $($(this).parent()).parent();
+                let id = $($(this).parent()).parent().children('.item_id').val();
+                let unit = $(this).parent().children('.unit');
+                let price = $(this).parent().children('.price');
+                let total_price = $($(this).parent()).parent().find('span.total_price');
+                $.ajax({
+                    type: 'POST',
+                    url: "/Home/SubtractToCart",
+                    data: { "id": id, },
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.success) {
+                            let unit_value = parseInt($(unit).val());
+                            $(unit).val(unit_value - 1);
+                            console.log($(total_price).html());
+                            $(total_price).html(((unit_value - 1) * parseFloat($(price).val())).toFixed(2));
+                            if (unit_value == 1) {
+                                $(button).attr('disabled', true);
+                                $(parent).fadeOut(300, function () {
+                                    $(this).remove();
+                                    updateTotalCartPrice();
+                                    show_toast("Item removed successfully!");
+                                });
+                            }
+                            updateTotalCartPrice();
+                        }
+                        else {
+                            window.location = "/Login"
+                        }
+                    }
+                });
+            });
+
+            $('.remove-item').on('click', function () {
+                let parent = $($($(this).parent()).parent()).parent();
+                let id = $($($(this).parent()).parent()).parent().children('.item_id').val();
+                $(this).attr('disabled', true);
+                $.ajax({
+                    type: 'POST',
+                    url: "/Home/RemoveToCart",
+                    data: { "id": id, },
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.success) {
+                            $(parent).fadeOut(300, function () {
+                                $(this).remove();
+                                updateTotalCartPrice();
+                                show_toast("Item removed successfully!");
+                            });
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+}

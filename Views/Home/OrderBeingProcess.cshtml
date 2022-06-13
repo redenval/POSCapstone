@@ -1,0 +1,25 @@
+﻿@{
+}
+
+<br />
+<br />
+<br />
+<br />
+<br />
+<div class="container">
+    <h1>Your Order Is Being Processed.</h1>
+    <a href="/Store">Continue Shopping</a>
+    <a href="/ViewOrders">View Order</a>
+</div>
+
+@section Scripts {
+    <script>
+        let refRedirectHandle = 0;
+        $(function () {
+            clearInterval(refRedirectHandle);
+            refRedirectHandle = setInterval(function () {
+                window.location = "/ViewOrders";
+            }, 5000);
+        });
+    </script>
+} 
